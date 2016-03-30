@@ -856,12 +856,18 @@ function updateSpriteRef(images, sprites, css, opts) {
 
 			// retina图写入 background-size
 			if(opts.mobileModel) {
-				if(image.retina && image.has_1x == true) {
-					backgroundSize = postcss.decl({
-						prop: 'background-size',
-						value: getBackgroundSize(image, opts, true)
-					});
-
+				if(image.retina) {
+					if(image.has_1x == true) {
+						backgroundSize = postcss.decl({
+							prop: 'background-size',
+							value: getBackgroundSize(image, opts, true)
+						});
+					} else {
+						backgroundSize = postcss.decl({
+							prop: 'background-size',
+							value: getBackgroundSize(image, opts)
+						});
+					}
 					backgroundPosition.parent.insertAfter(backgroundPosition, backgroundSize);
 				}
 			} else {
