@@ -20,8 +20,8 @@ app.on('window-all-closed', function() {
 app.on('ready', function() {
   // 创建浏览器窗口。
   mainWindow = new BrowserWindow({
-    // width: 920,
-    width: 1200,
+    width: 920,
+    // width: 1200,
     height: 750,
     minWidth: 650,
     minHeight: 750,
@@ -32,7 +32,7 @@ app.on('ready', function() {
   mainWindow.loadURL('file://' + __dirname + '/index.html');
 
   // 打开开发工具
-  mainWindow.openDevTools();
+  // mainWindow.openDevTools();
 
   // 当 window 被关闭，这个事件会被发出
   mainWindow.on('closed', function() {
