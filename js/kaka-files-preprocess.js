@@ -102,6 +102,8 @@ function filesGroup(files, opts) {
 			worked: []
 		},
 		html : [],
+		js : [],
+		whiteList : [],
 		ignore : []
 	};
 	
@@ -123,6 +125,8 @@ function filesGroup(files, opts) {
 			}
 		} else if(extname == '.html') {
 			filesPath.html.push(filePath);
+		} else if(extname == '.js') {
+			filesPath.js.push(filePath);
 		} else {
 			filesPath.ignore.push(filePath);
 		}

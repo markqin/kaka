@@ -1,6 +1,6 @@
 {
   "name": "KAKA",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "main": "main.js",
   "dependencies": {
     "async": "^1.5.0",
@@ -17,7 +17,8 @@
     "mkdirp": "^0.5.1",
     "postcss": "^5.0.13",
     "qrcode-npm": "0.0.3",
-    "spritesmith": "^3.0.0"
+    "spritesmith": "^3.0.0",
+    "uglify-js": "^2.6.2"
   },
   "devDependencies": {},
   "author": {

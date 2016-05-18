@@ -13,6 +13,8 @@ var kakaImgMin = require('./kaka-image-minify');
 var kakaImgScale = require('./kaka-image-scale');
 var kakaTime = require('./kaka-timestamp');
 var log = require('./log');
+var mkdirp = require('mkdirp');
+var UglifyJS = require("uglify-js");
 
 
 /**
@@ -27,7 +29,9 @@ var defaults = {
     useTimestampCss : false,
     saveLocal : true,
     syncResource : false,
-    to1x : false
+    to1x : false,
+    noMinJS : false,
+    noMangleJS : false
 };
 
 
@@ -49,7 +53,15 @@ module.exports = function(files, opts, callback) {
                 /*css : {importFiles: [],normal: []},
                 img : {original: [],worked: []},
                 html : [],
+                js : [],
                 ignore : []*/
+                if(filesGroups.ignore.length>0) {
+                    log('不支持以下格式的文件: ', 'warning')
+                    filesGroups.ignore.forEach(function (file) {
+                        log(file, 'log')
+                    })
+                    log('===== end =====', 'warning')
+                }
                 cb(err, filesGroups);
             });
         },
@@ -81,6 +93,16 @@ module.exports = function(files, opts, callback) {
                     if(filesGroups.html.length > 0) {
                         handleHTML(filesGroups.html, options, function (htmlAllInfo) {
                             callback1(null, htmlAllInfo)
+                        })
+                    } else {
+                        callback1(null, null)
+                    }
+                },
+                function(callback1) {
+                    // JS处理
+                    if(filesGroups.js.length > 0) {
+                        handleJS(filesGroups.js, options, function (jsAllInfo) {
+                            callback1(null, jsAllInfo)
                         })
                     } else {
                         callback1(null, null)
@@ -154,10 +176,13 @@ function handleCss(files, opts, cb) {
 
                         // 文件保存路径
                         var savePath = path.join(path.dirname(cssPath), opts.tempDir, cssFileName).split(path.sep).join('/');
+
                         // 压缩优化CSS
                         var miniCSS = new CleanCSS({compatibility:'ie7',keepBreaks:false}).minify(result.css).styles;
+
                         // 所有背景图以及sprite图信息
                         var images = result.messages[0].images;
+
                         // CSS文件时间戳注释标记
                         var timestampTag = opts.userName ? '\n/* kaka:'+kakaTime()+','+opts.userName+' */' : '\n/* kaka:'+kakaTime()+' */';
 
@@ -172,15 +197,18 @@ function handleCss(files, opts, cb) {
 
                         cssImagesInfo.unshift.apply(cssImagesInfo, images);
 
+                        console.log(cssImagesInfo)
+
 
                         // 如果需要保存文件到本地
                         if(opts.saveLocal) {
                             fs.writeFile(savePath, miniCSS, function (err) {
                                 if(err) {
                                     callback(err);
+                                } else {
+                                    log(path.basename(savePath)+' 处理后文件保存到临时目录成功！', 'log')
+                                    callback();
                                 }
-                                log(path.basename(savePath)+' 处理后文件保存到临时目录成功！', 'log')
-                                callback();
                             })
                         } else {
                             callback();
@@ -268,18 +296,42 @@ function handleCssImages(images, opts, cb) {
         }
     })
 
-    // 待处理压缩的图片
-    var readeyImages;
+    // 准备压缩处理的图片
+    var readeyMinImages;
+
+    // 如果不同步资源
     if(!opts.syncResource) {
-        readeyImages = originalSpriteImages;
+        readeyMinImages = originalSpriteImages;
     } else {
-        readeyImages = originalSpriteImages.concat(originalNormalImages);
+        readeyMinImages = originalSpriteImages.concat(originalNormalImages);
     }
 
-    // 如果OSX下文件过多
-    if(os.platform() == 'darwin') {
+    // 图片压缩处理
+    if(os.platform() != 'darwin') {
+        // 图片压缩
+        kakaImgMin(readeyMinImages, opts, function (err, doneImagesInfo) {
+            if(err) {
+                if(cb) {
+                    cb(err);
+                }
+            } else {
+                if(!opts.syncResource) {
+                    doneImagesInfo.unshift.apply(doneImagesInfo, workedSpriteImages);
+                } else {
+                    doneImagesInfo = doneImagesInfo.concat(workedSpriteImages, workedNormalImages);
+                }
+
+                if(cb) {
+                    // console.log(doneImagesInfo)
+                    cb(null, doneImagesInfo);
+                }
+            }
+            
+        })
+    } else {
+        // 如果OSX下文件过多
         var filesSize = 0;
-        readeyImages.forEach(function (item) {
+        readeyMinImages.forEach(function (item) {
             if(typeof item === 'string') {
                 filesSize += fs.readFileSync(item).length
             } else if (typeof item === 'object') {
@@ -287,7 +339,7 @@ function handleCssImages(images, opts, cb) {
             }
         })
 
-        // if(readeyImages.length > 100) {
+        // if(readeyMinImages.length > 100) {
         if(Math.floor(filesSize/1000)> 1024) {
             log('OSX系统限制，压缩图片过多！', 'error');
 
@@ -302,7 +354,7 @@ function handleCssImages(images, opts, cb) {
             }
         } else {
             // 图片压缩
-            kakaImgMin(readeyImages, opts, function (err, doneImagesInfo) {
+            kakaImgMin(readeyMinImages, opts, function (err, doneImagesInfo) {
                 if(err) {
                     if(cb) {
                         cb(err);
@@ -321,59 +373,6 @@ function handleCssImages(images, opts, cb) {
 
             })
         }
-
-        /*var readeyImagesGroup = [];
-        var addNumb = 150;
-        for(var j=0; j<Math.floor(readeyImages.length/150); j++) {
-            readeyImagesGroup[j] = readeyImages.slice(addNumb-150,addNumb)
-            addNumb += 150;
-        }
-        readeyImagesGroup.push(readeyImages.slice(-readeyImages.length%150,-1).concat(readeyImages.slice(-1)))
-
-        var imagesInfo = [];
-        async.forEachOf(readeyImagesGroup, function (group, key, callback) {
-            kakaImgMin(group, opts, function (doneImagesInfo) {
-                if(!opts.syncResource) {
-                    doneImagesInfo.unshift.apply(doneImagesInfo, workedSpriteImages);
-                    imagesInfo.push(doneImagesInfo);
-                    callback();
-                } else {
-                    doneImagesInfo.unshift.apply(doneImagesInfo, workedSpriteImages, workedNormalImages);
-                    imagesInfo.push(doneImagesInfo);
-                    callback();
-                }
-            })
-        }, function (err) {
-            if(err) {
-                log('OSX下压缩文件出错'+err.message);
-                return;
-            } else {
-                if(cb) {
-                    cb(lodash.flatten(imagesInfo));
-                }
-            }
-        })*/
-
-    } else {
-        // 图片压缩
-        kakaImgMin(readeyImages, opts, function (err, doneImagesInfo) {
-            if(err) {
-                if(cb) {
-                    cb(err);
-                }
-            } else {
-                if(!opts.syncResource) {
-                    doneImagesInfo.unshift.apply(doneImagesInfo, workedSpriteImages);
-                } else {
-                    doneImagesInfo.unshift.apply(doneImagesInfo, workedSpriteImages, workedNormalImages);
-                }
-
-                if(cb) {
-                    cb(null, doneImagesInfo);
-                }
-            }
-            
-        })
     }
 
 }
@@ -496,6 +495,88 @@ function handleHTML(htmlFiles, opts, cb) {
         } else {
             if(cb) {
                 cb(htmlFilesInfo);
+            }
+        }
+    })
+
+}
+
+
+/**
+ * HTML处理
+ *
+ * @param  {Array} jsFiles
+ * @param  {Object} opts
+ * @param  {Function} cb
+ * @return async
+ */
+function handleJS(jsFiles, opts, cb) {
+    var jsFilesInfo = [];
+
+    async.forEachOf(jsFiles, function (jsPath, key, callback) {
+        fs.readFile(jsPath, function (err, buf) {
+            if(err) {
+                callback(err);
+            } else {
+                try {
+                    // 文件保存路径
+                    var jsFileName = path.basename(jsPath);
+                    var dirName = path.dirname(jsPath);
+                    var saveDirPath = path.join(dirName, opts.tempDir);
+                    var savePath = path.join(saveDirPath, jsFileName).split(path.sep).join('/');
+
+                    var jsBuf = buf;
+                    var jsContent = buf.toString();
+
+                    // 压缩js 
+                    if(!opts.noMinJS) {
+                        var minJsResult = UglifyJS.minify(jsContent, {
+                            fromString: true,
+                            // 是否混淆
+                            mangle: opts.noMangleJS ? false : true
+                        });
+
+                        jsContent = minJsResult.code;
+                        jsBuf = new Buffer(jsContent);
+                    }
+                    
+                    // js文件信息
+                    jsFilesInfo.push({
+                        savePath : savePath,
+                        buffer : jsBuf
+                    });
+
+                    // 如果需要保存文件到本地
+                    if(opts.saveLocal) {
+                        if(!fs.existsSync(saveDirPath)) {
+                            mkdirp.sync(saveDirPath);
+                        }
+                        fs.writeFile(savePath, jsContent, function (err) {
+                            if(err) {
+                                callback(err);
+                            } else {
+                                log(path.basename(savePath)+' 处理后文件保存到临时目录成功！', 'log')
+                                callback();
+                            }
+                            
+                        })
+                    } else {
+                        callback();
+                    }
+
+                } catch (err) {
+                    callback(err);
+                }
+
+            }
+        })
+    }, function (err) {
+        if(err) {
+            log('JS文件处理出错: '+err.message, 'error');
+            return;
+        } else {
+            if(cb) {
+                cb(jsFilesInfo);
             }
         }
     })
