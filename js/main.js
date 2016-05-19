@@ -61,6 +61,22 @@ $(document).ready(function () {
 	kakaSet();
 
 	
+	$("#j-update").on("click",function(){
+		//检查更新
+		var cur = "1.0.0";
+		if(kakaParams.version!=cur){
+			alert("版本有更新，将打开新窗口下载新版本！");
+			if (process.platform != 'darwin') {//windows
+				window.open(kakaParams.windowslink);  
+			}else{
+				window.open(kakaParams.maclink);  
+			}
+		}else{
+			alert("当前已是最新版本");
+		}
+	});
+
+	
 	// 拖拽文件
 	dragDrop(function (files) {
 		var config = JSON.parse(LS.getItem('config'));
