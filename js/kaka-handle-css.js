@@ -216,36 +216,35 @@ function parseImportContent(files, opts, cb) {
 					var styleRoot = postcss.parse(styleContent, { from: filePath});
 					file.root = styleRoot;
 
-					// 当此@import文件本身是 *.import.css 文件
-					if(/\.import\./.test(filePath)) {
-						file.isImport = true;
-						// 是否声明为单独处理sprite
-						styleRoot.walkComments(function (comment) {
-							if(comment.text == opts.singleSpriteToken) {
+					// 检测是否嵌套了@import文件
+					styleRoot.walkAtRules('import', function (atRule) {
+						if(atRule) {
+							file.isIncludeImport = true;
+							log(filePath+' 作为@import文件时不可以再嵌套@import文件，不做处理', 'warning')
+						}
+					});
+
+					// 是否声明为单独处理sprite
+					styleRoot.walkComments(function (comment) {
+						if(comment.text == opts.singleSpriteToken) {
+							file.needSprite = true;
+							return;
+						}
+					});
+					// 兼容CssGaga的声明
+					if(!file.needSprite) {
+						styleRoot.walkRules(function (rule) {
+							// if(rule.selector == '#CssGaga'){}
+							if(/#\s*CssGaga\s*{\s*background-image\s*:\s*none\s*}/gi.test(rule.toString())) {
 								file.needSprite = true;
 								return;
 							}
-						});
-						// 兼容CssGaga的声明
-						if(!file.needSprite) {
-							styleRoot.walkRules(function (rule) {
-								// if(rule.selector == '#CssGaga'){}
-								if(/#\s*CssGaga\s*{\s*background-image\s*:\s*none\s*}/gi.test(rule.toString())) {
-									file.needSprite = true;
-									return;
-								}
-							})
-						}
-						
-					} else {
-						file.needSprite = true;
-						// 检测是否嵌套了@import文件
-						styleRoot.walkAtRules('import', function (atRule) {
-							if(atRule) {
-								file.isIncludeImport = true;
-								log(filePath+' 作为@import文件时不可以再嵌套@import文件', 'warning')
-							}
-						});
+						})
+					}
+
+					// 当此@import文件本身是 *.import.css 文件
+					if(/\.import\./.test(filePath)) {
+						file.isImport = true;		
 					}
 
 					file.content = styleContent;

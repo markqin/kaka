@@ -21,10 +21,10 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
         <!-- 顶部条 -->
         <div class="main-top-bar">
           <div class="inner">
-            <input type="text">
+            <!-- <input type="text"> -->
           </div>
           <div class="actions">
-            <a href="javascript:;" class="btn-location" tabindex="-1" id="js_locationBtn" data-placement="bottom" data-toggle="tooltip" data-original-title="指定项目路径(实现中...)"></a>
+            <!-- <a href="javascript:;" class="btn-location" tabindex="-1" id="js_locationBtn" data-placement="bottom" data-toggle="tooltip" data-original-title="指定项目路径(实现中...)"></a> -->
             <a href="javascript:;" class="btn-open-file" tabindex="-1" id="js_openFilesBtn" data-placement="bottom" data-toggle="tooltip" data-original-title="添加待处理文件"></a>
           </div>
         </div>
@@ -110,6 +110,15 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useDragDo" data-state='true'>点击处理模式</label>
+              </li>
+              <li class="item">
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMinJS" data-state='false'>不压缩JS</label>
+              </li>
+              <li class="item">
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMangleJS" data-state='false'>不混淆JS</label>
+              </li>
+              <li class="item">
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="jsTimeTag" data-state='false'>CSS添加供JS获取的时间戳</label>
               </li>
             </ul>
           </div>

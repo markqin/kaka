@@ -1193,7 +1193,7 @@ function imageToBase64(imagePath, typeGroup, opts, cb) {
 			}
 		}
 		if(opts.doImageMinfy && typeGroup != '32') {
-			kakaImageMin([{savePath:imagePath, buffer:buf}], opts, function (doneImagesInfo) {
+			kakaImageMin([{savePath:imagePath, buffer:buf}], opts, function (err, doneImagesInfo) {
 				var base64Data = 'data:' + mime.lookup(imagePath) + ';base64,' + doneImagesInfo[0].buffer.toString('base64');
 				if(cb) {
 					cb(null, base64Data);

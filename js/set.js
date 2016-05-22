@@ -11,29 +11,10 @@ var LS = localStorage;
 module.exports = function() {
 	// LS.clear()
 	LS.removeItem('lastFiles');
-	
-	if(!LS.config) {
-		initLS();
-	}
 
-	var config = JSON.parse(LS.getItem('config'));
-	setUserName(config);
-	setConfig(config);
-	setTimestamp(config);
-	setFtpInfo(config);
-	// console.log(config)
-
-	// 绑定提示
-	$('body').tooltip({
-	    selector: '[data-toggle="tooltip"]',
-	    container : 'body'
-	});
-}
-
-
-// 初始化localStorage
-function initLS() {
 	var defaultSettings = {
+		// 版本号
+		kakaVersion : '0.2.0',
 		// 是否是移动模式
 		mobileModel : true,
 		// 检测css相关性
@@ -69,9 +50,66 @@ function initLS() {
 		// 是否使用FTP
 		useFtp : false,
 		// FTP配置
-		ftpConfigs : []
+		ftpConfigs : [],
+		// 不压缩JS
+		noMinJS : false,
+		// 不混淆JS
+    	noMangleJS : false,
+    	// CSS添加供JS获取的时间戳
+    	jsTimeTag : false
 	};
-	LS.setItem('config', JSON.stringify(defaultSettings));
+	
+	if(!LS.config) {
+		// initLS();
+		LS.setItem('config', JSON.stringify(defaultSettings));
+	} else {
+		// 当前confog
+		var config = JSON.parse(LS.getItem('config'));
+
+		// 当前版本号
+		var kakaVersion = '0.2.0';
+
+		if(config.kakaVersion != kakaVersion) {
+			var oldConfigKey = [];
+			var newConfigKey = [];
+
+			lodash.forEach(config, function(value, key) {
+				oldConfigKey.push(key)
+			});
+			lodash.forEach(defaultSettings, function(value, key) {
+				newConfigKey.push(key)
+			})
+
+			// 找出config增量
+			var diff = oldConfigKey.filter(function(v){ 
+				return !(newConfigKey.indexOf(v) > -1) 
+			}).concat(newConfigKey.filter(function(v){ 
+				return !(oldConfigKey.indexOf(v) > -1)
+			}));
+
+			// 更新config增量
+			for(var i=0; i<diff.length; i++) {
+				if(defaultSettings[diff[i]]) {
+					config[diff[i]] = defaultSettings[diff[i]];
+				} else {
+					delete config[diff[i]];
+				}
+			}
+			LS.setItem('config', JSON.stringify(config));
+		}
+
+		setUserName(config);
+		setConfig(config);
+		setTimestamp(config);
+		setFtpInfo(config);
+		
+		// 绑定提示
+		$('body').tooltip({
+		    selector: '[data-toggle="tooltip"]',
+		    container : 'body'
+		});
+		
+	}
 }
 
 

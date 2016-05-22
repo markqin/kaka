@@ -31,7 +31,8 @@ var defaults = {
     syncResource : false,
     to1x : false,
     noMinJS : false,
-    noMangleJS : false
+    noMangleJS : false,
+    jsTimeTag : false
 };
 
 
@@ -54,6 +55,7 @@ module.exports = function(files, opts, callback) {
                 img : {original: [],worked: []},
                 html : [],
                 js : [],
+                whiteList: [],
                 ignore : []*/
                 if(filesGroups.ignore.length>0) {
                     log('不支持以下格式的文件: ', 'warning')
@@ -104,6 +106,14 @@ module.exports = function(files, opts, callback) {
                         handleJS(filesGroups.js, options, function (jsAllInfo) {
                             callback1(null, jsAllInfo)
                         })
+                    } else {
+                        callback1(null, null)
+                    }
+                },
+                function(callback1) {
+                    // 白名单文件处理
+                    if(filesGroups.whiteList.length > 0) {
+                        callback1(null, filesGroups.whiteList)
                     } else {
                         callback1(null, null)
                     }
@@ -184,7 +194,10 @@ function handleCss(files, opts, cb) {
                         var images = result.messages[0].images;
 
                         // CSS文件时间戳注释标记
-                        var timestampTag = opts.userName ? '\n/* kaka:'+kakaTime()+','+opts.userName+' */' : '\n/* kaka:'+kakaTime()+' */';
+                        var timestampTag = creatTimeTag(opts);
+                        if(opts.jsTimeTag) {
+                            timestampTag = opts.userName ? '\n#KAKA{content:"'+kakaTime()+','+opts.userName+'"}' : '\n#KAKA{content:"'+kakaTime()+'"}';
+                        }
 
                         miniCSS = miniCSS+timestampTag;
 
@@ -503,7 +516,7 @@ function handleHTML(htmlFiles, opts, cb) {
 
 
 /**
- * HTML处理
+ * JS处理
  *
  * @param  {Array} jsFiles
  * @param  {Object} opts
@@ -526,7 +539,7 @@ function handleJS(jsFiles, opts, cb) {
                     var savePath = path.join(saveDirPath, jsFileName).split(path.sep).join('/');
 
                     var jsBuf = buf;
-                    var jsContent = buf.toString();
+                    var jsContent = buf.toString()+creatTimeTag(opts);
 
                     // 压缩js 
                     if(!opts.noMinJS) {
@@ -536,7 +549,7 @@ function handleJS(jsFiles, opts, cb) {
                             mangle: opts.noMangleJS ? false : true
                         });
 
-                        jsContent = minJsResult.code;
+                        jsContent = minJsResult.code+creatTimeTag(opts);
                         jsBuf = new Buffer(jsContent);
                     }
                     
@@ -581,6 +594,12 @@ function handleJS(jsFiles, opts, cb) {
         }
     })
 
+}
+
+
+// 文件时间戳注释标记
+function creatTimeTag(opts) {
+    return opts.userName ? '\n/* kaka:'+kakaTime()+','+opts.userName+' */' : '\n/* kaka:'+kakaTime()+' */';
 }
 
 

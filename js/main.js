@@ -1,18 +1,16 @@
 'use strict';
 
 var time_load_start = +new Date();
-
 // window.$ = window.jQuery = require("./js/vendor/jquery.min.js");
 
 var shell = require('electron').shell;
-var remote = require('remote'); 
-var dialog = remote.require('dialog'); 
+var dialog = require('electron').remote.dialog; 
 
 var fs = require('fs');
 var path = require('path');
 var lodash = require('lodash');
 var async = require('async');
-var postcss = require('./node_modules/postcss');
+var postcss = require('postcss');
 var spritesmith = require('spritesmith');
 var imagemin = require('imagemin');
 var gulp = require('gulp');
@@ -498,13 +496,18 @@ function delTempDir(filesArr, opts) {
 	var allDir = tempDir.concat(optDirNew);
 
 	async.each(allDir, function (dirPath, callback) {
-		kakaRmdir(dirPath, function (err) {
-			if(err) {
-				callback(err);
-			} else {
-				callback();
-			}
-		})
+		if(fs.existsSync(dirPath)) {
+			kakaRmdir(dirPath, function (err) {
+				if(err) {
+					callback(err);
+				} else {
+					callback();
+				}
+			})
+		} else {
+			callback();
+		}
+		
 	}, function (err) {
 		if(err) {
 			log('删除临时文件夹出错: '+err.message, 'error');

@@ -92,6 +92,7 @@ module.exports = function(files, opts, cb) {
  * @return {Object}
  */
 function filesGroup(files, opts) {
+	var whiteList = 'php|jsp|asp|aspx|py|rb|java|pdf|txt|mp3|mp4|avi|eot|woff|woff2|ttf|otf';
 	var filesPath = {
 		css : {
 			importFiles: [],
@@ -103,12 +104,13 @@ function filesGroup(files, opts) {
 		},
 		html : [],
 		js : [],
-		whiteList : [],
+		whiteList: [],
 		ignore : []
 	};
 	
 	files.forEach(function(filePath){
 		var extname = path.extname(filePath);
+
 		if(extname == '.css') {
 			// 处理xxx.import.css文件
 			if(/\.import\.css$/.test(filePath)) {
@@ -128,7 +130,12 @@ function filesGroup(files, opts) {
 		} else if(extname == '.js') {
 			filesPath.js.push(filePath);
 		} else {
-			filesPath.ignore.push(filePath);
+			var fileTypeReg =new RegExp('.('+whiteList+')$');
+			if(fileTypeReg.test(extname)) {
+				filesPath.whiteList.push(filePath);
+			} else {
+				filesPath.ignore.push(filePath);
+			}
 		}
 	});
 
