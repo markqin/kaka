@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>KAKA - UI工程师伴侣 (v0.2.0)</title>
+  <title>KAKA - UI工程师伴侣 (v0.1.0 beta)</title>
   <link rel="stylesheet" href="css/style.css">
 <script>
 // 阻止默认事件
@@ -16,8 +16,11 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
   <div class="layout-h-wrap">
 
     <div class="col-main">
+
       <!-- 可拖拽处理区域 -->
       <div class="main-wrap layout-v-wrap " id="js_dropZone">
+        <!-- 拖拽按钮 -->
+        <div class="drag-area"></div>
         <!-- 顶部条 -->
         <div class="main-top-bar">
           <div class="inner">
@@ -39,20 +42,22 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
           <div class="mod-summary mod none" id="js_summaryBox">
             <div class="summary-item web-item">
               <span class="title">文件地址</span>
-              <a href="javascript:;" class="view" tabindex="-1" id="js_viewWeb" data-placement="top" data-toggle="tooltip" data-original-title="查看详情"></a>
+              <a href="javascript:;" class="btn-view" tabindex="-1" id="js_viewWeb" data-placement="top" data-toggle="tooltip" data-original-title="查看详情"></a>
               <div class="some-web-files" id="js_webFilesShowBox"></div>
             </div>
             <div class="summary-item bill-item">
               <span class="title">提单路径</span>
-              <a href="javascript:;" class="view" tabindex="-1" id="js_viewBill" data-placement="top" data-toggle="tooltip" data-original-title="查看详情"></a>
-              <a href="javascript:;" class="copy" tabindex="-1" id="js_copyBill" data-placement="top" data-toggle="tooltip" data-original-title="复制"></a>
+              <a href="javascript:;" class="btn-view" tabindex="-1" id="js_viewBill" data-placement="top" data-toggle="tooltip" data-original-title="查看详情"></a>
+              <a href="javascript:;" class="btn-copy" tabindex="-1" id="js_copyBill" data-placement="top" data-toggle="tooltip" data-original-title="复制"></a>
             </div>
           </div>
         </div>
 
         <div class="detail-panel" id="js_detailPanel">
-          <a href="javascript:;" class="close" title="关闭"></a>
-          <div class="inner"></div>
+          <a href="javascript:;" class="btn-close" title="关闭"></a>
+          <div class="inner">
+
+          </div>
         </div>
 
         <div class="btn-group">
@@ -71,6 +76,8 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
         <!-- 顶部条 -->
         <div class="main-top-bar">
           <div class="inner">
+            <a href="https://tonytony.club/tool/kaka/" target="_blank" title="详细信息"><i class="btn-info"></i></a>
+            <a href="javascript:void(0)" title="检查更新" id="j-update"><i class="btn-update"></i></a>
             <!-- <input type="text"> -->
           </div>
           <div class="actions">
@@ -82,7 +89,7 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
         <div class="mod-set-username mod">
           <div class="mod-inner">
             <div class="input-wrap">
-              <input type="text" tabindex="-1" id="js_setUserName" class="input-username" placeholder="用户名">
+              <input type="text" tabindex="-1" id="js_setUserName" class="input-username" placeholder="rtx名">
             </div>
           </div>
         </div>
@@ -100,7 +107,7 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="replaceOriginal" data-state='false'>替换原文件(图片压缩后)</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="syncResource" data-state='false'>同步所有背景图</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="syncResource" data-state='false'>同步资源图片</label>
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="checkRelatedCss" data-state='false'>检查CSS关联性</label>
@@ -109,7 +116,7 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="to1x" data-state='false'>@Nx转@1x</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useDragDo" data-state='true'>点击处理模式</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useDragDo" data-state='true'>批量处理</label>
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMinJS" data-state='false'>不压缩JS</label>
@@ -230,10 +237,10 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
   </div>
 
 
-
+<script type="text/javascript"  src="https://tonytony.club/tool/kaka/version.js"></script>
 <script src="./js/vendor/jquery.min.js" onload="window.$ = window.jQuery = module.exports;" type="text/javascript"></script>
+<script type="text/javascript"></script>
 <script src="./js/vendor/tooltip.js" type="text/javascript"></script>
 <script src="./js/main.js"></script>
-
 </body>
 </html>

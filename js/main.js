@@ -58,6 +58,22 @@ $(document).ready(function () {
 	// 设置初始化
 	kakaSet();
 
+	// 版本检查
+	$("#j-update").on("click",function(){
+		//检查更新
+		var cur = "0.2.0";
+		if(kakaParams.version!=cur){
+			alert("版本有更新，将打开新窗口下载新版本！");
+			if (process.platform != 'darwin') {//windows
+				window.open(kakaParams.windowslink);
+			}else{
+				window.open(kakaParams.maclink);
+			}
+		}else{
+			alert("当前已是最新版本");
+		}
+	});
+
 	
 	// 拖拽文件
 	dragDrop(function (files) {
@@ -451,7 +467,7 @@ function showDetail(box, ftpResults) {
     })
 
     // 关闭详细面板
-    $detailPanel.on('click', '.close', function () {
+    $detailPanel.on('click', '.btn-close', function () {
     	$dropZone.removeClass('show');
     })
     $(document).keyup(function(e){
