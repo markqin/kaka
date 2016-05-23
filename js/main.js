@@ -394,7 +394,7 @@ function showDetail(box, ftpResults) {
 		if(/\.html/.test(item)) {
 			// 生成二维码
 			var qrcodeImgHtml = createQrcode(item, 8, 'M');
-			webSummaryHtml += '<div class="item"><div class="txt">'+item+'<span class="qrcode">'+qrcodeImgHtml+'</span></div><a href="javascript:;" class="copy" data-placement="top" data-toggle="tooltip" data-original-title="复制" data-clipboard-text="'+item+'"></a></div>';
+			webSummaryHtml += '<div class="item"><div class="txt">'+item+'<span class="qrcode">'+qrcodeImgHtml+'</span></div><a href="javascript:;" class="btn-copy" data-placement="top" data-toggle="tooltip" data-original-title="复制" data-clipboard-text="'+item+'"></a></div>';
 		}
 	})
 
@@ -402,7 +402,7 @@ function showDetail(box, ftpResults) {
     // 在log区显示HTML文件地址
 	$webFilesShowBox.html(webSummaryHtml);
 	// copy html地址
-	$webFilesShowBox.find('.copy').each(function () {
+	$webFilesShowBox.find('.btn-copy').each(function () {
 		var $this = $(this);
 		var clipboard = new Clipboard($(this)[0]);
 		clipboard.on('success', function(e) {
@@ -410,7 +410,7 @@ function showDetail(box, ftpResults) {
 			e.clearSelection();
 	    });
 	})
-	$webFilesShowBox.on('mouseleave', '.copy', function () {
+	$webFilesShowBox.on('mouseleave', '.btn-copy', function () {
 		$(this).attr('data-original-title', '复制')
 	})
 

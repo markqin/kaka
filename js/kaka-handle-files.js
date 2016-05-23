@@ -210,8 +210,6 @@ function handleCss(files, opts, cb) {
 
                         cssImagesInfo.unshift.apply(cssImagesInfo, images);
 
-                        console.log(cssImagesInfo)
-
 
                         // 如果需要保存文件到本地
                         if(opts.saveLocal) {

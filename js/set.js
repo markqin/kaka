@@ -81,15 +81,15 @@ module.exports = function() {
 			})
 
 			// 找出config增量
-			var diff = oldConfigKey.filter(function(v){ 
-				return !(newConfigKey.indexOf(v) > -1) 
-			}).concat(newConfigKey.filter(function(v){ 
-				return !(oldConfigKey.indexOf(v) > -1)
+			var diff = oldConfigKey.filter(function(i){ 
+				return !(newConfigKey.indexOf(i) > -1) 
+			}).concat(newConfigKey.filter(function(i){ 
+				return !(oldConfigKey.indexOf(i) > -1)
 			}));
 
 			// 更新config增量
 			for(var i=0; i<diff.length; i++) {
-				if(defaultSettings[diff[i]]) {
+				if(newConfigKey.indexOf(diff[i])>0) {
 					config[diff[i]] = defaultSettings[diff[i]];
 				} else {
 					delete config[diff[i]];

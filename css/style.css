@@ -114,8 +114,8 @@ button{outline: none; border: none; cursor: pointer;}
   background-image: url(../img/btn-delete.png);display: inline-block;background-size: 100% 100%;
 }
 .btn-close {
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   background-image: url(../img/btn-close.png);display: inline-block;background-size: 100% 100%;
 }
 /* ========== global ========== */
@@ -416,10 +416,10 @@ textarea {
   overflow: hidden;
 }
 .main-wrap .drag-area{
-  opacity: 0.5;position: absolute;top: 50%;left: 50%;margin-top: -75px;margin-left: -75px;
+  opacity: .3;position: absolute;top: 50%;left: 50%;margin-top: -75px;margin-left: -75px;
 }
 .drop-hover .drag-area{
-  opacity: 1.0;
+  opacity: .6;
 }
 
 .drop-end.main-wrap {
@@ -592,7 +592,7 @@ textarea {
 .mod-summary .some-web-files .txt:hover {
   color: #3c96e0;
 }
-.mod-summary .some-web-files .copy {
+.mod-summary .some-web-files .btn-copy {
   position: absolute;
   right: 3px;
   top: 50%;
@@ -601,7 +601,6 @@ textarea {
   transform: translate3d(16px,0,0); 
   visibility: hidden;
   opacity: 0;
-  background-image: url(../img/btn-copy.png);
 }
 .mod-summary .some-web-files .item:hover {
   background-color: #ededed;
@@ -611,7 +610,7 @@ textarea {
   visibility: visible;
   transform: translate3d(-50%,0,0);
 }
-.mod-summary .some-web-files .item:hover .copy {
+.mod-summary .some-web-files .item:hover .btn-copy {
   transform: translate3d(0,0,0); 
   opacity: 1;
   visibility: visible;
@@ -936,17 +935,17 @@ textarea {
 .detail-panel p {
   line-height: 1.5;
 }
-.detail-panel .close {
+.detail-panel .btn-close {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 10px;
+  right: 10px;
   background-repeat: no-repeat;
   background-size: 100% 100%;
   opacity: .5;
   transition: all .25s;
 }
 
-.detail-panel .close:hover {
+.detail-panel .btn-close:hover {
   opacity: 1;
 }
 
