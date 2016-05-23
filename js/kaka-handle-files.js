@@ -247,29 +247,21 @@ function handleCss(files, opts, cb) {
                 cb(err)
             }
         } else {
-            // 压缩CSS中的图片
-            if(opts.doImageMinfy && cssImagesInfo.length > 0) {
-                log('正在压缩css中的图片...', 'log');
-                handleCssImages(cssImagesInfo, opts, function (err, doneImagesInfo) {
-                    if(err) {
-                        if(cb) {
-                            cb(err);
-                        }
-                    } else {
-                        log('css中的图片压缩成功!', 'log');
-                        doneImagesInfo.push.apply(doneImagesInfo, cssFilesInfo);
-                        if(cb) {
-                            cb(null, doneImagesInfo);
-                        }
-                        
+            // 处理css中的图片
+            handleCssImages(cssImagesInfo, opts, function(err, doneImagesInfo) {
+                if(err) {
+                    if(cb) {
+                        cb(err);
                     }
-                })
-            } else {
-                cssImagesInfo.push.apply(cssImagesInfo, cssFilesInfo)
-                if(cb) {
-                    cb(null, cssImagesInfo);
+                } else {
+                    if(cb) {
+                        // 返回css文件信息和相关图片信息
+                        doneImagesInfo.push.apply(doneImagesInfo, cssFilesInfo);
+                        cb(null, doneImagesInfo);
+                    }
+                    
                 }
-            }
+            })
         }
         
     })
@@ -309,40 +301,69 @@ function handleCssImages(images, opts, cb) {
 
     // 准备压缩处理的图片
     var readeyMinImages;
+    var othersImages;
 
     // 如果不同步资源
     if(!opts.syncResource) {
         readeyMinImages = originalSpriteImages;
+        othersImages = workedSpriteImages;
     } else {
         readeyMinImages = originalSpriteImages.concat(originalNormalImages);
+        othersImages = workedNormalImages.concat(workedSpriteImages);
     }
 
-    // 图片压缩处理
-    if(os.platform() != 'darwin') {
-        // 图片压缩
-        kakaImgMin(readeyMinImages, opts, function (err, doneImagesInfo) {
+    // 压缩CSS中的图片
+    if(opts.doImageMinfy && readeyMinImages.length > 0) {
+        log('正在压缩css中的图片...', 'log');
+        minCssImages(readeyMinImages, opts, function(err, minDoneImagesInfo) {
             if(err) {
                 if(cb) {
                     cb(err);
                 }
             } else {
-                if(!opts.syncResource) {
-                    doneImagesInfo.unshift.apply(doneImagesInfo, workedSpriteImages);
-                } else {
-                    doneImagesInfo = doneImagesInfo.concat(workedSpriteImages, workedNormalImages);
-                }
-
                 if(cb) {
-                    // console.log(doneImagesInfo)
+                    log('css中的图片压缩成功!', 'log');
+                    var doneImagesInfo = minDoneImagesInfo.concat(othersImages);
                     cb(null, doneImagesInfo);
                 }
             }
-            
+        })
+    } else {
+        var doneImagesInfo = readeyMinImages.concat(othersImages);
+        cb(null, doneImagesInfo);
+    }
+
+}
+
+
+
+/**
+ * 压缩CSS文件中的图片
+ *
+ * @param  {Array} images
+ * @param  {Object} opts
+ * @param  {Function} cb
+ * @return async
+ */
+function minCssImages(images, opts, cb) {
+    // 图片压缩处理
+    if(os.platform() != 'darwin') {
+        // 图片压缩
+        kakaImgMin(images, opts, function (err, minDoneImagesInfo) {
+            if(err) {
+                if(cb) {
+                    cb(err)
+                }
+            } else {
+                if(cb) {
+                    cb(null, minDoneImagesInfo);
+                }
+            }
         })
     } else {
         // 如果OSX下文件过多
         var filesSize = 0;
-        readeyMinImages.forEach(function (item) {
+        images.forEach(function (item) {
             if(typeof item === 'string') {
                 filesSize += fs.readFileSync(item).length
             } else if (typeof item === 'object') {
@@ -350,47 +371,33 @@ function handleCssImages(images, opts, cb) {
             }
         })
 
-        // if(readeyMinImages.length > 100) {
+        // if(images.length > 100) {
         if(Math.floor(filesSize/1000)> 1024) {
             log('OSX系统限制，压缩图片过多！', 'error');
-
-            var doneImagesInfo;
-            if(!opts.syncResource) {
-                doneImagesInfo = workedSpriteImages.concat(originalSpriteImages);
-            } else {
-                doneImagesInfo = images;
-            }
             if(cb) {
-                cb(doneImagesInfo)
+                cb(images);
             }
         } else {
             // 图片压缩
-            kakaImgMin(readeyMinImages, opts, function (err, doneImagesInfo) {
+            kakaImgMin(images, opts, function (err, minDoneImagesInfo) {
                 if(err) {
                     if(cb) {
                         cb(err);
                     }
                 } else {
-                    if(!opts.syncResource) {
-                        doneImagesInfo.unshift.apply(doneImagesInfo, workedSpriteImages);
-                    } else {
-                        doneImagesInfo.unshift.apply(doneImagesInfo, workedSpriteImages, workedNormalImages);
-                    }
-
                     if(cb) {
-                        cb(null, doneImagesInfo);
+                        cb(null, minDoneImagesInfo);
                     }
                 }
 
             })
         }
     }
-
 }
 
 
 /**
- * 图片处理
+ * 非CSS中的图片处理
  *
  * @param  {Object} images
  * @param  {Object} opts

@@ -341,7 +341,7 @@ function handFiles(files, cb) {
 				// 开始上传FTP
 				log('开始上传文件到FTP服务器... ', 'log');
 
-				// console.log(allFilesInfo)
+				console.log(allFilesInfo)
 
 				uploadFtp(allFilesInfo, function (err, ftpResults) {
 					if(err) {
