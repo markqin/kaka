@@ -538,8 +538,7 @@ textarea {
 }
 .mod-summary a {
   display: inline-block;
-  width: 16px;
-  height: 16px;
+
   background-repeat: no-repeat;
   background-size: 100% 100%;
   vertical-align: middle;
