@@ -59,7 +59,7 @@ $(document).ready(function () {
 	kakaSet();
 
 	// 版本检查
-	$("#j-update").on("click",function(){
+	$("#j_kaka_update").on("click",function(){
 		//检查更新
 		var cur = "0.2.0";
 		if(kakaParams.version!=cur){
@@ -73,6 +73,10 @@ $(document).ready(function () {
 			alert("当前已是最新版本");
 		}
 	});
+
+	$('#j_kaka_info').on('click', function() {
+		shell.openExternal('https://tonytony.club/tool/kaka/');
+	})
 
 	
 	// 拖拽文件

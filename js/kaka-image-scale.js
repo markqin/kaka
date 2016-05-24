@@ -17,7 +17,6 @@ var log = require('./log');
  * @api public
  */
 module.exports = function (files, cb) {
-	console.log('a'+files)
 
 	var newFilesPath = [];
 
@@ -104,6 +103,7 @@ function scaleImages(imagePath, w, h, ratio, cb) {
 	// 保存路径
 	var newFileName = path.basename(imagePath).replace('@'+ratio.toString()+'x','');
 	var newFilePath = path.join(path.dirname(imagePath), newFileName).split(path.sep).join('/');
+	var testFilePath = path.join(path.dirname(imagePath), 'a.txt').split(path.sep).join('/');
 
 	// scale之后的尺寸
 	var nW = Math.floor(w/ratio);
@@ -115,7 +115,7 @@ function scaleImages(imagePath, w, h, ratio, cb) {
 	canvas.height = nH;
 	var ctx = canvas.getContext('2d');
 	var img = new Image();
-	img.src = imagePath;
+	img.src = imagePath+'?r='+Math.random();
 
 	img.onload = function () {
 		ctx.imageSmoothingEnabled = true;
@@ -134,6 +134,8 @@ function scaleImages(imagePath, w, h, ratio, cb) {
 			}
 		})
 	}
+
+
 }
 
 

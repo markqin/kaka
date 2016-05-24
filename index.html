@@ -76,8 +76,9 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
         <!-- 顶部条 -->
         <div class="main-top-bar">
           <div class="inner">
-            <a href="https://tonytony.club/tool/kaka/" target="_blank" title="详细信息"><i class="btn-info"></i></a>
-            <a href="javascript:void(0)" title="检查更新" id="j-update"><i class="btn-update"></i></a>
+            <!-- <a href="https://tonytony.club/tool/kaka/" target="_blank" title="详细信息"><i class="btn-info"></i></a> -->
+            <a href="javascript:void(0);" title="详细信息" id="j_kaka_info"><i class="btn-info"></i></a>
+            <a href="javascript:void(0);" title="检查更新" id="j_kaka_update"><i class="btn-update"></i></a>
             <!-- <input type="text"> -->
           </div>
           <div class="actions">
@@ -101,7 +102,7 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="mobileModel" data-state='true'>PC模式</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="doImageMinfy" data-state='true'>图片不压缩</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="doImageMinfy" data-state='true'>不压缩图片</label>
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="replaceOriginal" data-state='false'>替换原文件(图片压缩后)</label>
@@ -122,10 +123,10 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMangleJS" data-state='false'>不混淆JS</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="jsTimeTag" data-state='false'>CSS添加供JS获取的时间戳</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="jsTimeTag" data-state='false'>为CSS添加供JS获取的时间戳</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useDragDo" data-state='true'>非拖拽处理模式</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useDragDo" data-state='true'>跨目录文件处理</label>
               </li>
             </ul>
           </div>
