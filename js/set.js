@@ -281,7 +281,7 @@ function setFtpInfo(config) {
 			state = 'true';
 			config.useFtp = true;
 		}
-		listHtml += '<li class="item item-ftp"><label class="inner"><input type="checkbox" '+isChecked+' tabindex="-1" data-tag="'+item.addTime+'" data-state="'+state+'"><span class="txt">'+item.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑"></a><a href="javascript:;" tabindex="-1" class="del" data-placement="top" data-toggle="tooltip" data-original-title="删除"></a></span></li>'
+		listHtml += '<li class="item item-ftp"><label class="inner"><input type="checkbox" '+isChecked+' tabindex="-1" data-tag="'+item.addTime+'" data-state="'+state+'"><span class="txt">'+item.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑"></a><a href="javascript:;" tabindex="-1" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除"></a></span></li>'
 	});
 	$ftpListWrap.append(listHtml);
 
@@ -331,7 +331,7 @@ function setFtpInfo(config) {
 	})
 
 	// 编辑ftp信息
-	$ftpMod.on('click', '.edit', function () {
+	$ftpMod.on('click', '.btn-edit', function () {
 		var _config = JSON.parse(LS.getItem('config'));
 		var $parent = $(this).parents('.item-ftp');
 		var dataTag = $parent.find('input[type=checkbox]').attr('data-tag');
@@ -361,7 +361,7 @@ function setFtpInfo(config) {
 	})
 
 	// 删除配置
-	$ftpMod.on('click', '.del', function () {
+	$ftpMod.on('click', '.btn-del', function () {
 		var _config = JSON.parse(LS.getItem('config'));
 		var $parent = $(this).parents('.item-ftp');
 		var dataTag = $parent.find('input[type=checkbox]').attr('data-tag');

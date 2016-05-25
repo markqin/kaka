@@ -161,7 +161,7 @@ function uploader(client, localFile, ftpPath, cb){
 	    		cb(err);
 	    	}
           } else{
-            uploader(client, localFile, ftpPath);
+            uploader(client, localFile, ftpPath, cb);
           }
         });
       } else {
