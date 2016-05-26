@@ -41,6 +41,9 @@ var handleSquirrelEvent = function() {
       case '--squirrel-install':
          install(app.quit);
          return true;
+      case '--squirrel-updated':
+         install(app.quit);
+         return true;
       case '--squirrel-obsolete':
          app.quit();
          return true;

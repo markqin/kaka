@@ -65,9 +65,9 @@ $(document).ready(function () {
 		if(kakaParams.version!=cur){
 			alert("版本有更新，将打开新窗口下载新版本！");
 			if (process.platform != 'darwin') {//windows
-				window.open(kakaParams.windowslink);
+				shell.openExternal(kakaParams.windowslink);
 			}else{
-				window.open(kakaParams.maclink);
+				shell.openExternal(kakaParams.maclink);
 			}
 		}else{
 			alert("当前已是最新版本");
