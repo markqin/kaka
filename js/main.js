@@ -3,6 +3,7 @@
 var time_load_start = +new Date();
 // window.$ = window.jQuery = require("./js/vendor/jquery.min.js");
 
+
 var shell = require('electron').shell;
 var dialog = require('electron').remote.dialog; 
 
@@ -63,11 +64,13 @@ $(document).ready(function () {
 		//检查更新
 		var cur = "0.2.1";
 		if(kakaParams.version!=cur){
-			alert("版本有更新，将打开新窗口下载新版本！");
+			alert("版本有更新，将退出程序并下载新版本！");
 			if (process.platform != 'darwin') {//windows
 				shell.openExternal(kakaParams.windowslink);
+				window.close();
 			}else{
 				shell.openExternal(kakaParams.maclink);
+				window.close();
 			}
 		}else{
 			alert("当前已是最新版本");
