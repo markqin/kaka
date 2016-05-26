@@ -188,8 +188,7 @@ function handleCss(files, opts, cb) {
                         var savePath = path.join(path.dirname(cssPath), opts.tempDir, cssFileName).split(path.sep).join('/');
 
                         // 压缩优化CSS
-                        var miniCSS = new CleanCSS({compatibility:'ie7',keepBreaks:true}).minify(result.css).styles;
-                        // var miniCSS = result.css;
+                        var miniCSS = new CleanCSS({compatibility:'ie7',keepBreaks:false}).minify(result.css).styles;
 
                         // 所有背景图以及sprite图信息
                         var images = result.messages[0].images;
