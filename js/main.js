@@ -61,7 +61,7 @@ $(document).ready(function () {
 	// 版本检查
 	$("#j_kaka_update").on("click",function(){
 		//检查更新
-		var cur = "0.2.0";
+		var cur = "0.2.1";
 		if(kakaParams.version!=cur){
 			alert("版本有更新，将打开新窗口下载新版本！");
 			if (process.platform != 'darwin') {//windows

@@ -396,7 +396,7 @@ function insertImportContent(files, css, isInit) {
 	var importFiles;
 	if(isInit) {
 		importFiles = lodash.filter(files, function (file) {
-			return file.isImport == true && file.needSprite == false;
+			return file.needSprite == false;
 		})
 	} else {
 		importFiles = lodash.filter(files, function (file) {
