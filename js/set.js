@@ -426,7 +426,7 @@ function setFtpInfo(config) {
 				// 存入localStorage
 				_config.ftpConfigs.push(ftpConfigNew);
 				// 在选择面板显示添加的ftp
-				var html = '<li class="item item-ftp"><label class="inner"><input type="checkbox" tabindex="-1" data-tag="'+ftpConfigNew.addTime+'" data-state="false"><span class="txt">'+ftpConfigNew.name+'</span></label><span class="actions"><a href="javascript:;" class="edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑"></a><a href="javascript:;" class="del" data-placement="top" data-toggle="tooltip" data-original-title="删除"></a></span></li>'
+				var html = '<li class="item item-ftp"><label class="inner"><input type="checkbox" tabindex="-1" data-tag="'+ftpConfigNew.addTime+'" data-state="false"><span class="txt">'+ftpConfigNew.name+'</span></label><span class="actions"><a href="javascript:;" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑"></a><a href="javascript:;" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除"></a></span></li>'
 				$ftpMod.find('.ftp-list').append(html);
 				LS.setItem('config', JSON.stringify(_config));
 				// 重置

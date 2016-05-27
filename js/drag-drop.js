@@ -12,18 +12,36 @@ module.exports = function(cb) {
   var $dropZone = $('#js_showLogArea');
   var counter = 0;
 
-  $dropZone.get(0).addEventListener("dragover", function(e){
+  var dropZone = $dropZone.get(0)
+
+  dropZone.addEventListener("dragstart", function(e){
+    e.preventDefault();
+  }, false);
+
+  dropZone.addEventListener("drag", function(e){
+    e.preventDefault();
+  }, false);
+
+  dropZone.addEventListener("dragenter", function(e){
+    e.preventDefault();
+  }, false);
+
+  dropZone.addEventListener("dragend", function(e){
+    e.preventDefault();
+  }, false);
+
+  dropZone.addEventListener("dragover", function(e){
     e.preventDefault();
     $dropZoneWrap.addClass('drop-hover');
     $dropZoneWrap.removeClass('drop-end');
   }, false);
 
-  $dropZone.get(0).addEventListener("dragleave", function(e){
+  dropZone.addEventListener("dragleave", function(e){
     e.preventDefault();
     $dropZoneWrap.removeClass('drop-hover');
   }, false);
 
-  $dropZone.get(0).addEventListener("drop", function (e) {
+  dropZone.addEventListener("drop", function (e) {
     e.preventDefault();
     $dropZoneWrap.removeClass('drop-hover');
     $dropZoneWrap.addClass('drop-end');
