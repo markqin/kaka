@@ -20,11 +20,15 @@
     "spritesmith": "^3.0.0",
     "uglify-js": "^2.6.2"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-electron-installer": "^2.1.0"
+  },
   "author": {
     "name": "markqin",
     "email": "markqin@gmail.com",
     "url": "https://github.com/markqin, https://github.com/kmokidd"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "create-windows-installer": {}
 }
