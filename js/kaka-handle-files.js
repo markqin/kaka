@@ -346,8 +346,22 @@ function handleCssImages(images, opts, cb) {
  * @return async
  */
 function minCssImages(images, opts, cb) {
+
+    // 图片压缩
+    kakaImgMin(images, opts, function (err, minDoneImagesInfo) {
+        if(err) {
+            if(cb) {
+                cb(err)
+            }
+        } else {
+            if(cb) {
+                cb(null, minDoneImagesInfo);
+            }
+        }
+    })
+
     // 图片压缩处理
-    if(os.platform() != 'darwin') {
+    /*if(os.platform() != 'darwin') {
         // 图片压缩
         kakaImgMin(images, opts, function (err, minDoneImagesInfo) {
             if(err) {
@@ -392,7 +406,7 @@ function minCssImages(images, opts, cb) {
 
             })
         }
-    }
+    }*/
 }
 
 

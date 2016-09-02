@@ -1,6 +1,6 @@
 {
   "name": "KAKA",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "main": "main.js",
   "dependencies": {
     "async": "^1.5.0",
@@ -12,9 +12,11 @@
     "image-size": "^0.4.0",
     "imagemin": "^4.0.0",
     "imagemin-pngquant": "^4.2.0",
+    "jszip": "^3.1.2",
     "lodash": "^3.10.1",
     "mime": "^1.3.4",
     "mkdirp": "^0.5.1",
+    "needle": "^1.1.0",
     "postcss": "^5.0.13",
     "qrcode-npm": "0.0.3",
     "spritesmith": "^3.0.0",
