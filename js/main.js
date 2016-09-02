@@ -3,7 +3,6 @@
 var time_load_start = +new Date();
 // window.$ = window.jQuery = require("./js/vendor/jquery.min.js");
 
-
 var shell = require('electron').shell;
 var dialog = require('electron').remote.dialog; 
 
@@ -33,7 +32,8 @@ var kakaImgMin = require('./js/kaka-image-minify');
 
 var kakaSet = require('./js/set.js');
 var dragDrop = require('./js/drag-drop.js');
-var uploadFtp = require('./js/upload-ftp.js');
+// var uploadFtp = require('./js/upload-ftp.js');
+var kakaUpload = require('./js/kaka-upload.js');
 var log = require('./js/log.js');
 
 var Clipboard = require("./js/vendor/clipboard.min.js");
@@ -62,7 +62,7 @@ $(document).ready(function () {
 	// 版本检查
 	$("#j_kaka_update").on("click",function(){
 		//检查更新
-		var cur = "0.2.1";
+		var cur = "0.2.2";
 		if(kakaParams.version!=cur){
 			alert("版本有更新，将退出程序并下载新版本！");
 			if (process.platform != 'darwin') {//windows
@@ -346,9 +346,31 @@ function handFiles(files, cb) {
 		} else {
 			if(config.useFtp) {
 				// 开始上传FTP
-				log('开始上传文件到FTP服务器... ', 'log');
+				log('开始上传文件到服务器... ', 'log');
 
-				uploadFtp(allFilesInfo, function (err, ftpResults) {
+				kakaUpload(allFilesInfo, function (err, result) {
+					if(err) {
+						if(cb) {
+							cb(err);
+						}
+					} else {
+						// 删除临时文件夹
+						if(!config.saveLocal) {
+							delTempDir(allFilesInfo, config);
+						}
+
+						// 显示提单详细数据
+						if(result.bill.length > 0) {
+							showDetail($summaryBox, result);
+						}
+
+						if(cb) {
+							cb();
+						}
+					}
+				})
+
+				/*uploadFtp(allFilesInfo, function (err, ftpResults) {
 					if(err) {
 						if(cb) {
 							cb(err);
@@ -369,7 +391,7 @@ function handFiles(files, cb) {
 						}
 					}
 
-				})
+				})*/
 			} else {
 				if(cb) {
 					cb();

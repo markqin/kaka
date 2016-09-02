@@ -8,6 +8,10 @@ const {BrowserWindow} = electron;
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
 
+// macOS/Linux file descriptor limit
+if(process.platform == 'darwin') {
+  process.setFdLimit(10480);
+}
 
 //Squirrel
 var path = require('path');
