@@ -92,7 +92,7 @@ module.exports = function(files, opts, cb) {
  * @return {Object}
  */
 function filesGroup(files, opts) {
-	var whiteList = 'php|jsp|asp|aspx|py|rb|java|pdf|txt|mp3|mp4|avi|eot|woff|woff2|ttf|otf';
+	var whiteList = 'php|jsp|asp|aspx|py|rb|java|pdf|txt|mp3|mp4|avi|eot|woff|woff2|ttf|otf|htc';
 	var filesPath = {
 		css : {
 			importFiles: [],

@@ -116,7 +116,7 @@ module.exports = function (files, opts, cb) {
  */
 function runImagemin(filePath, buf, opts, cb) {
 	var optimizedDir = !opts.replaceOriginal ? opts.optimizedDir : '';
-
+ 
 	new Imagemin()
 		.src(buf)
 		.use(gulpRename(path.basename(filePath)))

@@ -187,6 +187,9 @@ function getImages(css) {
 				image.url = getImageUrl(declString);
 			}
 
+			var _imageDirname = path.dirname(image.url);
+			var _imageBasename = path.basename(image.url);
+
 			// 自定义图片设置(?rem&base64)
 			/*var customSet = getCustomSet(image.url);
 			if(customSet != ''){
@@ -197,22 +200,22 @@ function getImages(css) {
 			}*/
 
 			// 是否是rem文件夹的图片
-			if(/\/?\brem\b\/?/.test(image.url)) {
+			if(/\/?\brem\b\/?/.test(_imageDirname)) {
 				image.rem = true;
 			}
 
 			// 是否是base64文件夹的图片
-			if(/\/?\bbase64\b\//.test(image.url)) {
+			if(/\/?\bbase64\b\//.test(_imageDirname)) {
 				image.base64 = true;
 			}
 
 			// 是否是.32图片
-			if(/\.32\b/.test(image.url)) {
+			if(/\.32\b/.test(_imageBasename)) {
 				image.typeGroup = '32';
 			}
 
 			// 是否是ie6图片
-			if(/\.ie6\b/.test(image.url)) {
+			if(/\bie6\b/.test(_imageBasename)) {
 				image.typeGroup = 'ie6';
 			}
 
@@ -1364,7 +1367,7 @@ function getImageUrl(rule) {
  * @return {Boolean}
  */
 function hasSliceImageInRule(rule) {
-	return /background-image[\s]*:[\s]*url\([\s]*(['"]?[\s]*(?!['"]?http[s]?)[^;}\s]*\/?\bslice\b\/?[^;}\s]+\.png\b[^;}\s]*[\s]*['"]?)[\s]*\)/gi.test(rule);
+	return /background-image[\s]*:[\s]*url\([\s]*(['"]?[\s]*(?!['"]?http[s]?)[^;}\s]*\/?\bslice\b[^;}\s]*\/+[^;}\s]+\.png\b[^;}\s]*[\s]*['"]?)[\s]*\)/gi.test(rule);
 }
 
 
@@ -1375,7 +1378,7 @@ function hasSliceImageInRule(rule) {
  * @return {String}
  */
 function getSliceImageUrl(rule) {
-	var match = /background-image[\s]*:[\s]*url\([\s]*(['"]?[\s]*(?!['"]?http[s]?)[^;}\s]*\/?\bslice\b\/?[^;}\s]+\.png\b[^;}\s]*[\s]*['"]?)[\s]*\)/gi.exec(rule);
+	var match = /background-image[\s]*:[\s]*url\([\s]*(['"]?[\s]*(?!['"]?http[s]?)[^;}\s]*\/?\bslice\b[^;}\s]*\/+[^;}\s]+\.png\b[^;}\s]*[\s]*['"]?)[\s]*\)/gi.exec(rule);
 	return match ? match[1].replace(/['"\s]/gi, '') : '';
 }
 
