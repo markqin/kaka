@@ -32,7 +32,9 @@ var defaults = {
     to1x : false,
     noMinJS : false,
     noMangleJS : false,
-    jsTimeTag : false
+    jsTimeTag : false,
+    miniCSS: true,
+    cssKeepBreaks :false
 };
 
 
@@ -187,8 +189,13 @@ function handleCss(files, opts, cb) {
                         // 文件保存路径
                         var savePath = path.join(path.dirname(cssPath), opts.tempDir, cssFileName).split(path.sep).join('/');
 
+                        var newCSS;
                         // 压缩优化CSS
-                        var miniCSS = new CleanCSS({compatibility:'ie7',keepBreaks:false}).minify(result.css).styles;
+                        if(opts.miniCSS) {
+                            newCSS = new CleanCSS({compatibility:'ie7',keepBreaks:opts.cssKeepBreaks}).minify(result.css).styles;
+                        } else {
+                            newCSS = result.css;
+                        }
 
                         // 所有背景图以及sprite图信息
                         var images = result.messages[0].images;
@@ -199,11 +206,11 @@ function handleCss(files, opts, cb) {
                             timestampTag = opts.userName ? '\n#KAKA{content:"'+kakaTime()+','+opts.userName+'"}' : '\n#KAKA{content:"'+kakaTime()+'"}';
                         }
 
-                        miniCSS = miniCSS+timestampTag;
+                        newCSS = newCSS+timestampTag;
 
                         cssFilesInfo.push({
                             savePath : savePath,
-                            buffer : new Buffer(miniCSS)
+                            buffer : new Buffer(newCSS)
                         })
 
                         log(path.basename(cssPath)+' 处理成功！', 'log')
@@ -213,7 +220,7 @@ function handleCss(files, opts, cb) {
 
                         // 如果需要保存文件到本地
                         if(opts.saveLocal) {
-                            fs.writeFile(savePath, miniCSS, function (err) {
+                            fs.writeFile(savePath, newCSS, function (err) {
                                 if(err) {
                                     callback(err);
                                 } else {
