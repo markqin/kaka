@@ -36,6 +36,7 @@ var cp = require('child_process');
       executeSquirrelCommand(["--removeShortcut", target], done);
    };
 
+
 var handleSquirrelEvent = function() {
    if (process.platform != 'win32') {
       return false;
@@ -63,8 +64,6 @@ if (handleSquirrelEvent()) {
    return;
 }
 //end Squirrel
-
-
 
 
 

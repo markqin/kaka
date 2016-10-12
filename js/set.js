@@ -1,6 +1,6 @@
 'use strict';
 
-// var Vue = require("./vendor/vue.min.js");
+var Vue = require("./vendor/vue.js");
 var os = require('os');
 var lodash = require('lodash');
 var kakaTime = require('./kaka-timestamp');
