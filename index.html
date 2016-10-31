@@ -11,14 +11,14 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
 </script>
 
 </head>
-<body>
+<body id="j-vue">
   <b class="page-mask" id="js_pageMask"></b>
   <div class="layout-h-wrap">
 
     <div class="col-main">
 
       <!-- 可拖拽处理区域 -->
-      <div class="main-wrap layout-v-wrap " id="js_dropZone">
+      <div class="main-wrap layout-v-wrap " id="js_dropZone" v-bind:class="{'none':control.dropEnd}">
         <!-- 拖拽按钮 -->
         <div class="drag-area"></div>
         <!-- 顶部条 -->
@@ -28,7 +28,7 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
           </div>
           <div class="actions">
             <!-- <a href="javascript:;" class="btn-location" tabindex="-1" id="js_locationBtn" data-placement="bottom" data-toggle="tooltip" data-original-title="指定项目路径(实现中...)"></a> -->
-            <a href="javascript:;" class="btn-open-file" tabindex="-1" id="js_openFilesBtn" data-placement="bottom" data-toggle="tooltip" data-original-title="添加待处理文件"></a>
+            <a href="javascript:;" class="btn-open-file" tabindex="-1" id="js_openFilesBtn" v-on:click="openFiles($event)";data-placement="bottom" data-toggle="tooltip" data-original-title="添加待处理文件"></a>
           </div>
         </div>
 
@@ -61,12 +61,12 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
         </div>
 
         <div class="btn-group">
-          <button type="submit" class="btn-block btn-exec none" id="js_execBtn">开始处理</button>
+          <button type="submit" class="btn-block btn-exec" id="js_execBtn" v-bind:class="{'none':!config.useClickMode}" v-on:click="exec_file">{{control.execBtnText}}</button>
         </div>
         
       </div>
 
-      <b class="drop-mask none" id="js_dropMask"></b>
+      <b class="drop-mask" id="js_dropMask" v-bind:class="{'none':control.dropMaskHide}"></b>
       
     </div>
     
@@ -75,11 +75,9 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
       <div class="layout-v-wrap settings-wrap">
         <!-- 顶部条 -->
         <div class="main-top-bar">
-          <div class="inner">
-            <!-- <a href="https://tonytony.club/tool/kaka/" target="_blank" title="详细信息"><i class="btn-info"></i></a> -->
-            <a href="javascript:void(0);" title="详细信息" id="j_kaka_info"><i class="btn-info"></i></a>
-            <a href="javascript:void(0);" title="检查更新" id="j_kaka_update"><i class="btn-update"></i></a>
-            <!-- <input type="text"> -->
+          <div class="inner" id="j-topbar">
+              <a href="javascript:void(0);" title="详细信息" v-on:click="kaka_info"><i class="btn-info"></i></a>
+              <a href="javascript:void(0);" title="检查更新" v-on:click="kaka_update"><i class="btn-update"></i></a>
           </div>
           <div class="actions">
             <!-- <a href="javascript:;" class="btn-location" tabindex="-1" id="js_locationBtn" data-placement="bottom" data-toggle="tooltip" data-original-title="定位项目路径"></a>
@@ -90,146 +88,145 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
         <div class="mod-set-username mod">
           <div class="mod-inner">
             <div class="input-wrap">
-              <input type="text" tabindex="-1" id="js_setUserName" class="input-username" placeholder="rtx名">
+              <input type="text" tabindex="-1" id="js_setUserName" v-model="config.userName" class="input-username" placeholder="rtx名">
             </div>
           </div>
         </div>
 
         <div class="mod-set-normal mod">
           <div class="mod-inner">
-            <ul class="setting-list" id="js_setNormal">
+            <ul class="setting-list">
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="mobileModel" data-state='true'>PC模式</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.mobileModel" v-on:change="update_data">PC模式</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="doImageMinfy" data-state='true'>不压缩图片</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.doImageMinfy" v-on:change="update_data">不压缩图片</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="replaceOriginal" data-state='false'>替换原文件(图片压缩后)</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.replaceOriginal" v-on:change="update_data">替换原文件(图片压缩后)</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="syncResource" data-state='false'>同步资源图片</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.syncResource" v-on:change="update_data">同步资源图片</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="checkRelatedCss" data-state='false'>检查CSS关联性</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.checkRelatedCss" v-on:change="update_data">检查CSS关联性</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="to1x" data-state='false'>@Nx转@1x图</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.to1x" v-on:change="update_data">@Nx转@1x图</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMinJS" data-state='false'>不压缩JS</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.noMinJS" v-on:change="update_data">不压缩JS</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMangleJS" data-state='false'>不混淆JS</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.noMangleJS" v-on:change="update_data">不混淆JS</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="jsTimeTag" data-state='false'>为CSS添加供JS获取的时间戳</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.jsTimeTag" v-on:change="update_data">为CSS添加供JS获取的时间戳</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useDragDo" data-state='true'>跨目录文件处理</label>
-              </li>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.useClickMode" v-on:change="update_data">跨目录文件处理</label></li>
             </ul>
           </div>
         </div>
 
-        <div class="mod-set-time mod" id="js_setTime">
+        <div class="mod-set-time mod">
           <div class="mod-inner">
             <ul class="setting-list">
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useTimestamp" data-state='false'>Sprite文件名加时间戳</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.useTimestamp" v-on:change="update_data">Sprite文件名加时间戳</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useTimestampCss" data-state='false'>CSS文件名加时间戳</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.useTimestampCss"  v-on:change="update_data">CSS文件名加时间戳</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="timestampAddUserTag" data-state='false'>时间戳加用户标记</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.timestampAddUserTag" v-on:change="setTimestamp">时间戳加用户标记</label>
               </li>
             </ul>
             <div class="input-wrap">
-              <input type="text" tabindex="-1" class="input-timeshow" value="">
-              <a href="javascript:;" tabindex="-1" class="btn-updata-time" title="更新时间戳"></a>
+              <input type="text" tabindex="-1" class="input-timeshow" v-on:change="update_data" v-model="config.timestamp">
+              <a href="javascript:;" tabindex="-1" class="btn-updata-time" title="更新时间戳" v-on:click="update_timestamp"></a>
             </div>
           </div>
         </div>
         
         <!-- ftp选择 -->
-        <div class="mod-ftp mod" id="js_ftp">
+        <div class="mod-ftp mod config-enable" v-bind:class="{'editing':config.ftp_editing.addTime}" id="js_ftp">
           <div class="mod-inner layout-v-wrap">
             <div class="mod-title">
               <h3 class="txt">保存到:</h3> 
               <div class="actions">
-                <a href="javascript:;" data-placement="top" data-toggle="tooltip" data-original-title="添加配置" tabindex="-1" class="btn-add"></a>
-                <a href="javascript:;" data-placement="top" data-toggle="tooltip" data-original-title="开启配置" tabindex="-1" class="btn-config"></a>
+                <a href="javascript:;" title="添加配置" tabindex="-1" class="btn-add" v-on:click="add_ftp($event)"></a>
+<!--                 <a href="javascript:;" data-placement="top" data-toggle="tooltip" data-original-title="开启配置" tabindex="-1" class="btn-config"></a> -->
               </div>
             </div>
             <!-- <div><button id="js_openFile">Open</button></div>
             <div><input type="file" multiple name="" id=""></div> -->
             <ul class="ftp-list setting-list">
               <li class="item local-item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="saveLocal" data-state="false"><span class="txt">本地</span></label>
+                <label class="inner"><input type="checkbox" tabindex="-1" v-model="config.saveLocal" value=0 v-on:change="select_ftp" ><span class="txt">本地</span></label>
               </li>
             </ul>
           </div>
-
-          <!-- ftp配置浮层 -->
-          <div class="ftp-config config-panel">
+            <!-- ftp配置浮层 -->
+          <div class="ftp-config config-panel"  id="js_ftp">
             <div class="ftp-info">
               <ul class="list">
                 <li class="item">
                   <span class="name">名称:</span>
                   <span class="input-wrap">
-                    <input type="text" class="input" required data-tag="name" placeholder="测试环境">
+                    <input type="text" class="input" required v-model="config.ftp_editing.name" placeholder="测试环境">
                   </span>
                 </li>
                 <li class="item">
                   <span class="name">网址:</span>
                   <span class="input-wrap">
-                    <input type="text" class="input" data-tag="website" placeholder="http://www.demo.com">
+                    <input type="text" class="input" v-model="config.ftp_editing.website" placeholder="http://www.demo.com">
                   </span>
                 </li>
                 <li class="item">
                   <span class="name">主机:</span>
                   <span class="input-wrap">
-                    <input type="text" class="input" required data-tag="host" placeholder="127.0.0.1">
+                    <input type="text" class="input" required v-model="config.ftp_editing.host" placeholder="127.0.0.1">
                   </span>
                 </li>
                 <li class="item">
                   <span class="name">端口:</span>
                   <span class="input-wrap">
-                    <input type="text" class="input" data-tag="port" placeholder="21">
+                    <input type="text" class="input" v-model="config.ftp_editing.port" placeholder="21">
                   </span>
                 </li>
                 <li class="item">
                   <span class="name">用户名:</span>
                   <span class="input-wrap">
-                    <input type="text" class="input" data-tag="user" placeholder="admin">
+                    <input type="text" class="input" v-model="config.ftp_editing.user" placeholder="admin">
                   </span>
                 </li>
                 <li class="item">
                   <span class="name">密码:</span>
                   <span class="input-wrap">
-                    <input type="text" class="input" data-tag="pw" placeholder="*****">
+                    <input type="text" class="input" v-model="config.ftp_editing.pw" placeholder="*****">
                   </span>
                 </li>
                 <li class="item">
                   <span class="name">提单路径:</span>
                   <span class="input-wrap">
-                    <input type="text" class="input" data-tag="bill" placeholder="/htdocs">
+                    <input type="text" class="input" v-model="config.ftp_editing.bill" placeholder="/htdocs">
                   </span>
                 </li>
                 <li class="item">
                   <span class="name">白名单:</span>
                   <span class="input-wrap">
-                    <textarea class="input" data-tag="wl" placeholder="porject-1,project-2(英文逗号分隔)"></textarea>
+                    <textarea class="input" v-model="config.ftp_editing.wl" placeholder="porject-1,project-2(英文逗号分隔)"></textarea>
                   </span>
                 </li>
               </ul>
             </div>
             <div class="btn-wrap">
-              <button type="button" class="btn btn-primary js_btnOk" data-tag="">确定</button>
-              <button type="button" class="btn btn-default js_btnCancel" data-tag="">取消</button>
+              <button type="button" class="btn btn-primary js_btnOk" v-on:click="comfirm_ftp()">确定</button>
+              <button type="button" class="btn btn-default js_btnCancel"  v-on:click="cancel_ftp">取消</button>
             </div>
           </div>
+
         </div>
 
       </div>
@@ -237,14 +234,15 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
     
   </div>
 
+
 <script type="text/javascript">
     var date = new Date();
     var time = date.getTime();
     document.write('<script type="text/javascript" src="https://tonytony.club/tool/kaka/version.js?v='+time+'"><\/script>');
 </script>
 <script src="./js/vendor/jquery.min.js" onload="window.$ = window.jQuery = module.exports;" type="text/javascript"></script>
-<script type="text/javascript"></script>
+<script type="text/javascript" src="./js/vendor/vue.js"></script>
 <script src="./js/vendor/tooltip.js" type="text/javascript"></script>
-<script src="./js/main.js"></script>
+<script src="./js/vue-new.js"></script>
 </body>
 </html>

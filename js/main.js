@@ -1,5 +1,4 @@
 'use strict';
-
 var time_load_start = +new Date();
 // window.$ = window.jQuery = require("./js/vendor/jquery.min.js");
 
@@ -45,85 +44,91 @@ var readyFilesPath = [];
 // 收集窗口打开文件信息
 var readyWinFilesInfo = [];
 
+var control = {
+	execBtnText:'开始处理',
+	dropMaskHide:true,
+	useClickMode : false// 是否使用拖拽处理模式
+}
 
 $(document).ready(function () {
+	init();
+})
 
+function init(){
 	var time_load_end = +new Date();
-
-	$('#js_pageMask').hide();
-
+	$('#js_pageMask').hide()
 	log('模块预加载成功!', 'ok')
 	log('共耗时: '+ (time_load_end - time_load_start)/1000+'s', 'info');
-	
-	
+
 	// 设置初始化
 	kakaSet();
-
-	// 版本检查
-	$("#j_kaka_update").on("click",function(){
-		//检查更新
-		var cur = "0.2.2";
-		if(kakaParams.version!=cur){
-			alert("版本有更新，将退出程序并下载新版本！");
-			if (process.platform != 'darwin') {//windows
-				shell.openExternal(kakaParams.windowslink);
-				window.close();
-			}else{
-				shell.openExternal(kakaParams.maclink);
-				window.close();
-			}
-		}else{
-			alert("当前已是最新版本");
-		}
-	});
-
-	$('#j_kaka_info').on('click', function() {
-		shell.openExternal('https://tonytony.club/tool/kaka/');
-	})
-
+	initMode();
 	
+	var vmMain = new Vue({
+		el:"#j-vue-main",
+		data: control,
+		methods: {
+			update_data:function(){
+				var config = JSON.parse(LS.getItem('config'));
+				config.useClickMode = control.useClickMode;
+				LS.setItem('config', JSON.stringify(config));
+				console.log(JSON.stringify(config));
+			},
+			execFile:function(){
+				// 点击处理模式
+				var config = JSON.parse(LS.getItem('config')),
+				_readyFilesPath = lodash.uniq(readyFilesPath);
+				
+				if(config.useClickMode) {
+					var _filesPath;
+					if(_readyFilesPath.length > 0) {
+						_filesPath = _readyFilesPath;
+					} else {
+						var _lastFilesPath = JSON.parse(LS.getItem('lastFiles'));
+						if(_lastFilesPath) {
+							_filesPath = _lastFilesPath.paths;
+						}
+					}
+					if(_filesPath) {
+						config.execBtnText = '处理中...';
+						handFiles(_filesPath, function (err) {
+							config.dropMaskHide = false;
+							config.execBtnText = '重新处理';
+						});
+					}
+					
+				}
+
+			}
+		}
+	})
+	
+	bindEvent();
+}
+function initMode(){//拖拽模式or点击处理//////////////
+	var config = JSON.parse(LS.getItem('config'));
+	control.useClickMode = config.useClickMode;
+}
+function bindEvent(){
+	//中间核心功能
 	// 拖拽文件
 	dragDrop(function (files) {
 		var config = JSON.parse(LS.getItem('config'));
 		var filesPath = handleReadyFiles(files);
 		readyFilesPath.push.apply(readyFilesPath, filesPath);
-		$('#js_execBtn').text('开始处理');
+		config.execBtnText = "开始处理";
 
 		// 拖拽处理模式
-		if(config.useDragDo) {
+		if(!config.useClickMode) {//////////////////////////////
 			handFiles(filesPath, function (err) {
-				$('#js_dropMask').addClass('none');
-				$('#js_execBtn').text('重新处理');
+				config.dropMaskHide = true;
+				config.execBtnText = '重新处理';
 			});
 		}
 	})
 
-	// 点击处理模式
-	$('#js_execBtn').on('click', function () {
-		var $this = $(this);
-		var config = JSON.parse(LS.getItem('config'));
-		var _readyFilesPath = lodash.uniq(readyFilesPath);
-		
-		if(!config.useDragDo) {
-			var _filesPath;
-			if(_readyFilesPath.length > 0) {
-				_filesPath = _readyFilesPath;
-			} else {
-				var _lastFilesPath = JSON.parse(LS.getItem('lastFiles'));
-				if(_lastFilesPath) {
-					_filesPath = _lastFilesPath.paths;
-				}
-			}
-			if(_filesPath) {
-				$this.text('处理中...')
-				handFiles(_filesPath, function (err) {
-					$('#js_dropMask').addClass('none');
-					$('#js_execBtn').text('重新处理');
-				});
-			}
-			
-		}
-	})
+
+
 
 
 	// 处理通过系统窗口打开的文件
@@ -139,10 +144,7 @@ $(document).ready(function () {
 	    	handLastFiles();
 	    }
 	});
-	
-})
-
-
+}
 
 // 处理通过系统窗口打开的文件
 function handWindowFiles() {
@@ -166,7 +168,7 @@ function handWindowFiles() {
 			})
 
 			var config = JSON.parse(LS.getItem('config'));
-			if(config.useDragDo) {
+			if(config.useClickMode) {
 				var filesPath = handleReadyFiles(readyWinFilesInfo);
 				// 执行处理文件
 				handFiles(filesPath, function (err) {

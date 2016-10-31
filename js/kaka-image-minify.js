@@ -33,6 +33,7 @@ var defaults = {
  * @api public
  */
 module.exports = function (files, opts, cb) {
+
 	var options = lodash.merge({}, defaults, opts || {});
 
 	var images = [];

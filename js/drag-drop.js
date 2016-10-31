@@ -12,7 +12,7 @@ module.exports = function(cb) {
   var $dropZone = $('#js_showLogArea');
   var counter = 0;
 
-  var dropZone = $dropZone.get(0)
+  var dropZone = $dropZone.get(0);
 
   dropZone.addEventListener("dragstart", function(e){
     e.preventDefault();

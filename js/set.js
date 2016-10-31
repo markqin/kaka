@@ -1,14 +1,13 @@
 'use strict';
 
-var Vue = require("./vendor/vue.js");
 var os = require('os');
 var lodash = require('lodash');
 var kakaTime = require('./kaka-timestamp');
 var LS = localStorage;
 
-
 // 主函数
 module.exports = function() {
+
 	// LS.clear()
 	LS.removeItem('lastFiles');
 
@@ -45,202 +44,253 @@ module.exports = function() {
 		syncResource : false,
 		// 是否转@1x图
 		to1x : false,
-		// 是否使用拖拽处理模式
-		useDragDo : true,
 		// 是否使用FTP
-		useFtp : false,
+		ftptag : [],//数组形式，vue要求的
 		// FTP配置
 		ftpConfigs : [],
+		// ftpConfigs : [{"name":"102","addTime":"161017162644","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdocs","wl":["touch","mollyywang","brand","qz-act"]},{"name":"103","addTime":"161017162111","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdoc","wl":["touch","mollyywang","brand","qz-act"]}],
 		// 不压缩JS
 		noMinJS : false,
+		// 是否使用拖拽处理模式
+		useClickMode : false,
 		// 不混淆JS
     	noMangleJS : false,
     	// CSS添加供JS获取的时间戳
-    	jsTimeTag : false
+    	jsTimeTag : false,
+    	
+    	ftp_editing : {
+    		//是否正在编辑 0就是不在编辑状态，非0就是正在编辑的addTime,也就是之前的fata-tag
+    		addTime:'',
+    		name:'',
+    		website:'',
+    		current:false,
+    		host:'',
+    		port:'',
+    		user:'',
+    		pw:'',
+    		bill:'',
+    		wl:''
+    	}
 	};
+
 	
 	if(!LS.config) {
-		// initLS();
+		initLS();
 		LS.setItem('config', JSON.stringify(defaultSettings));
 	} else {
-		// 当前confog
-		var config = JSON.parse(LS.getItem('config'));
+	// 当前config
+	// LS.setItem('config', JSON.stringify(defaultSettings));
 
-		// 当前版本号
-		var kakaVersion = '0.2.2';
+	var config = JSON.parse(LS.getItem('config'));
 
-		if(config.kakaVersion != kakaVersion) {
-			var oldConfigKey = [];
-			var newConfigKey = [];
+	// 当前版本号
+	var kakaVersion = '0.2.2';
 
-			config.kakaVersion = kakaVersion;
+	if(config.kakaVersion != kakaVersion) {
+		var oldConfigKey = [];
+		var newConfigKey = [];
 
-			lodash.forEach(config, function(value, key) {
-				oldConfigKey.push(key)
-			});
-			lodash.forEach(defaultSettings, function(value, key) {
-				newConfigKey.push(key)
-			})
+		config.kakaVersion = kakaVersion;
 
-			// 找出config增量
-			var diff = oldConfigKey.filter(function(i){ 
-				return !(newConfigKey.indexOf(i) > -1) 
-			}).concat(newConfigKey.filter(function(i){ 
-				return !(oldConfigKey.indexOf(i) > -1)
-			}));
+		lodash.forEach(config, function(value, key) {
+			oldConfigKey.push(key)
+		});
+		lodash.forEach(defaultSettings, function(value, key) {
+			newConfigKey.push(key)
+		})
 
-			// 更新config增量
-			for(var i=0; i<diff.length; i++) {
-				if(newConfigKey.indexOf(diff[i])>0) {
-					config[diff[i]] = defaultSettings[diff[i]];
-				} else {
-					delete config[diff[i]];
-				}
+		// 找出config增量
+		var diff = oldConfigKey.filter(function(i){ 
+			return !(newConfigKey.indexOf(i) > -1) 
+		}).concat(newConfigKey.filter(function(i){ 
+			return !(oldConfigKey.indexOf(i) > -1)
+		}));
+
+		// 更新config增量
+		for(var i=0; i<diff.length; i++) {
+			if(newConfigKey.indexOf(diff[i])>0) {
+				config[diff[i]] = defaultSettings[diff[i]];
+			} else {
+				delete config[diff[i]];
 			}
-			LS.setItem('config', JSON.stringify(config));
 		}
+		LS.setItem('config', JSON.stringify(config));
+	}
 
-		setUserName(config);
-		setConfig(config);
-		setTimestamp(config);
-		setFtpInfo(config);
+		//初始化绑定数据
+		initData(config);
 		
 		// 绑定提示
 		$('body').tooltip({
 		    selector: '[data-toggle="tooltip"]',
 		    container : 'body'
 		});
+
+		//绑定数据跟事件
+		bindDataAndEvent(config);
 		
 	}
 }
 
+function bindDataAndEvent(config){
+		// 顶部工具栏
+		//vue 事件绑定
+	var vmSet = new Vue({
+		el: "#j-vue-set",
+		data: config,
+		methods: {
+			kaka_info: function(){
+				shell.openExternal('https://tonytony.club/tool/kaka/');
+			},
+			kaka_update: function(){
+				//检查更新
+				var cur = "0.2.2";
+				if(kakaParams.version!=cur){
+					alert("版本有更新，将退出程序并下载新版本！");
+					if (process.platform != 'darwin') {//windows
+						shell.openExternal(kakaParams.windowslink);
+						window.close();
+					}else{
+						shell.openExternal(kakaParams.maclink);
+						window.close();
+					}
+				}else{
+					alert("当前已是最新版本");
+				}
+			},
+			update_data:function(){
+				LS.setItem('config', JSON.stringify(config));
+				console.log(JSON.stringify(config));
+			},
+			update_timestamp:function(){
+				var _now = kakaTime(config);
+				config.timestamp = _now;
+				this.update_data();
+			},
+			setTimestamp:function(){
+				var now = kakaTime(config);
+				config.timestamp = now;
+			},
+			select_ftp:function(){
+				if(config.ftptag.length>0){
+					config.ftptag[0] = config.ftptag.pop();//拿最后一个,去掉其它ftp的选择状态
+				}
+				config.ftpConfigs.forEach(function (item) {
+					if(item.addTime == config.ftptag) {
+						item.current = true;
+					} else {
+						item.current = false;
+					}
+					
+				})
+				this.update_data();
+			},
+			//编辑ftp信息
+			edit_ftp:function(dataTag,event){
+				config.ftp_editing.addTime = dataTag;
+				$(event.currentTarget).tooltip('hide');
+				// 显示待编辑的ftp信息
+				config.ftpConfigs.forEach(function (ftpConfig) {
+					if(ftpConfig.addTime == dataTag) {
+						lodash.forEach(ftpConfig, function (item, key) {
+							if(typeof item === 'object') {
+								item = item.join(',');
+							}
+							config.ftp_editing[key] = item;
+					 	})
+					}
+				});
+			},
+			// 删除配置
+			delete_ftp:function(dataTag,event){
+				// 删除相应的ftp信息
+				var delIndex = NaN;
+				lodash.forEach(config.ftpConfigs, function (ftpConfig, key) {
+					if(ftpConfig.addTime == dataTag) {
+						delIndex = key;//保存要删除的ftp数组中的元素序号
+						if(ftpConfig.current == true) {
+							config.ftptag = [];//空数组，表示不用ftp了
+						}
+						return;
+					}
+				});
+				if(delIndex != NaN) {
+					config.ftpConfigs.splice(delIndex, 1);
+					this.update_data();
+					// 去掉选择面板中的相应数据
+					$(event.currentTarget).parents('.item-ftp').addClass('remove');
+				}
+			},
+			// 添加ftp信息
+			add_ftp:function(event){
+				$(config.ftpConfigs).tooltip('hide');
+				config.ftp_editing.addTime = kakaTime();
+				config.ftp_editing.current = false;
+			},
+			// 取消添加ftp
+			cancel_ftp:function(){
+				config.ftp_editing = {
+		    		addTime:'',
+		    		name:'',
+		    		website:'',
+		    		current:false,
+		    		host:'',
+		    		port:'',
+		    		user:'',
+		    		pw:'',
+		    		bill:'',
+		    		wl:''
+		    	}
+			},
+			// 提交ftp信息
+			comfirm_ftp:function(){
+				var $ftpMod = $('#js_ftp');
+				var $ftpListWrap = $ftpMod.find('.ftp-list');
+				var isNew = true,//是否新增
+					dataTag = config.ftp_editing.addTime;
 
-// 用户名
-function setUserName(config) {
-	var $userNameBox = $('#js_setUserName');
 
-	if(config.userName == '') {
+				config.ftp_editing['wl'] = config.ftp_editing['wl'].replace(/\s+/g,'').split(',');
+				// 更新修改的ftp
+				config.ftpConfigs.forEach(function (ftpConfig) {
+					if(ftpConfig.addTime == dataTag) {
+						isNew = false;//是编辑，不是新增
+						lodash.forEach(ftpConfig,function(item, key){
+							ftpConfig[key] = config.ftp_editing[key];
+						})
+						$('[value='+dataTag+']').next('span').text(config.ftp_editing.name);
+					}
+				});
+				if(!!isNew){
+					config.ftpConfigs.push(config.ftp_editing);
+					// 在选择面板显示添加的ftp
+					var html = '<li class="item item-ftp"><label class="inner"><input type="checkbox" tabindex="-1" v-on:change="select_ftp"  v-model="ftptag" value='+config.ftp_editing.addTime+' ><span class="txt">'+config.ftp_editing.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑" v-on:click="edit_ftp('+config.ftp_editing.addTime+',$event)"></a><a href="javascript:;" tabindex="-1" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除" v-on:click="delete_ftp('+config.ftp_editing.addTime+',$event)" ></a></span></li>';
+					$ftpListWrap.append(html);
+					this.update_data();
+				}
+				this.cancel_ftp();//重置
+				this.update_data();
+			}
+		}
+	});
+}
+
+function initData(config){
+	//setUserName用户名
+	config.userName = '';
+	if(config.userName == '') { 
 		try {
 			var hostName = os.hostname().match(/\w+/)[0];
 			if(hostName) {
-				$userNameBox.val(hostName);
 				config.userName = hostName;
-				// LS.setItem('config', JSON.stringify(config));
 			}
 		} catch(err) {}
-	} else {
-		$userNameBox.val(config.userName);
 	}
-
-	$userNameBox.on('blur', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var _name = $(this).val();
-		_config.userName = _name;
-		LS.setItem('config', JSON.stringify(_config));
-
-		// 实时更新时间戳
-		var now = kakaTime(_config);
-		_config.timestamp = now;
-		LS.setItem('config', JSON.stringify(_config));
-		$('#js_setTime').find('.input-timeshow').val(now);
-	})
-}
-
-
-// 时间戳
-function setTimestamp(config) {
-	var $timeBox = $('#js_setTime');
-	var now = kakaTime(config);
-	$timeBox.find('.input-timeshow').val(now);
-	config.timestamp = now;
+	// setTimestamp 时间戳
+	console.log(JSON.stringify(config));
 	LS.setItem('config', JSON.stringify(config));
-
-	// 初始状态检测
-	$timeBox.find('input[type=checkbox]').each(function () {
-		var $this = $(this);
-		var dataTag = $this.attr('data-tag');
-		var dataState = $this.attr('data-state');
-		var state = String(config[dataTag]);
-		if(dataState != state) {
-			$this.prop('checked','checked');
-			$this.attr('data-state', state);
-		}
-	})
-
-	// 更新时间戳
-	$timeBox.on('click', '.btn-updata-time', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var _now = kakaTime(_config);
-		$timeBox.find('.input-timeshow').val(_now);
-		_config.timestamp = _now;
-		LS.setItem('config', JSON.stringify(_config));
-	})
-
-	// 手动自定义时间戳
-	$timeBox.on('blur', '.input-timeshow', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		_config.timestamp = $(this).val();
-		LS.setItem('config', JSON.stringify(_config));
-	})
-
-	// 选择是否使用时间戳
-	$timeBox.on('click', 'input[type=checkbox]', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var $this = $(this);
-		var dataTag = $this.attr('data-tag');
-		var state = !_config[dataTag];
-		_config[dataTag] = state;
-		$this.attr('data-state', state);
-		var _now = $timeBox.find('.input-timeshow').val();
-		_config.timestamp = _now;
-		LS.setItem('config', JSON.stringify(_config));
-	})
-}
-
-
-// 配置项
-function setConfig(config) {
-	var $normalBox = $('#js_setNormal');
-	var $execBtn = $('#js_execBtn');
-
-	// 初始状态检测
-	$normalBox.find('input[type=checkbox]').each(function () {
-		var $this = $(this);
-		var dataTag = $this.attr('data-tag');
-		var dataState = $this.attr('data-state');
-		var state = String(config[dataTag]);
-		if(dataState != state) {
-			$this.prop('checked','checked');
-			$this.attr('data-state', state);
-		}
-		// 拖拽即时处理模式
-		if(dataTag == 'useDragDo') {
-			if($this.attr('data-state') == 'true') {
-				$execBtn.addClass('none');
-			} else {
-				$execBtn.removeClass('none');
-			}
-			
-		}
-	})
-
-	// 配置项选择处理
-	$normalBox.on('click', 'input[type=checkbox]', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var $this = $(this);
-		var dataTag = $this.attr('data-tag');
-		var state = !_config[dataTag];
-		_config[dataTag] = state;
-		$this.attr('data-state', state);
-
-		// 拖拽即时处理模式
-		if(dataTag == 'useDragDo') {
-			$execBtn.toggleClass('none');
-		}
-
-		LS.setItem('config', JSON.stringify(_config));
-	})
-
+	//FTP
+	setFtpInfo(config);
 }
 
 
@@ -248,30 +298,6 @@ function setConfig(config) {
 function setFtpInfo(config) {
 	var $ftpMod = $('#js_ftp');
 	var $ftpListWrap = $ftpMod.find('.ftp-list');
-
-	// saveLocal初始状态检测
-	$ftpMod.find('.local-item input[type=checkbox]').each(function () {
-		var $this = $(this);
-		var dataTag = $this.attr('data-tag');
-		var dataState = $this.attr('data-state');
-		var state = String(config[dataTag]);
-		if(dataState != state) {
-			$this.prop('checked','checked');
-			$this.attr('data-state', state);
-		}
-	})
-
-	// saveLocal状态切换
-	$ftpMod.on('click', '.local-item input[type=checkbox]', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var $this = $(this);
-		var dataTag = $this.attr('data-tag');
-		var state = !_config[dataTag];
-		_config[dataTag] = state;
-		$this.attr('data-state', state);
-
-		LS.setItem('config', JSON.stringify(_config));
-	})
 
 	// 显示已有ftp信息
 	var listHtml = '';
@@ -283,201 +309,9 @@ function setFtpInfo(config) {
 			state = 'true';
 			config.useFtp = true;
 		}
-		listHtml += '<li class="item item-ftp"><label class="inner"><input type="checkbox" '+isChecked+' tabindex="-1" data-tag="'+item.addTime+'" data-state="'+state+'"><span class="txt">'+item.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑"></a><a href="javascript:;" tabindex="-1" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除"></a></span></li>'
+		listHtml += '<li class="item item-ftp"><label class="inner"><input type="checkbox" '+isChecked+' tabindex="-1" v-on:change="select_ftp"  v-model="config.ftptag" value='+item.addTime+' ><span class="txt">'+item.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑" v-on:click="edit_ftp('+item.addTime+',$event)"></a><a href="javascript:;" tabindex="-1" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除" v-on:click="delete_ftp('+item.addTime+',$event)" ></a></span></li>'
 	});
 	$ftpListWrap.append(listHtml);
-
-	// 开启配置
-	$ftpMod.on('click', '.btn-config', function () {
-		$(this).toggleClass('clecked');
-		if($(this).hasClass('clecked')) {
-			$(this).attr('data-original-title','锁定配置')
-		} else {
-			$(this).attr('data-original-title','开启配置')
-		}
-		$(this).tooltip('hide');
-		
-		$ftpMod.toggleClass('config-enable');
-	}).on('mouseleave', '.btn-config', function () {
-		$(this).tooltip('hide');
-	})
-
-	// 选择ftp
-	$ftpMod.on('click', '.item-ftp input[type=checkbox]', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var $this = $(this);
-		var dataTag = $this.attr('data-tag');
-		$this.attr('data-state', 'false');
-
-		_config.ftpConfigs.forEach(function (item) {
-			if(item.addTime == dataTag) {
-				var state = !item.current;
-				item.current = state;
-				$this.attr('data-state', String(state));
-			} else {
-				item.current = false;
-			}
-		})
-
-		// 去掉其它ftp的选择状态
-		$this.parents('.item-ftp').siblings('.item-ftp').find('input[type=checkbox]').prop('checked','').attr('data-state','false');
-
-		// 检测是否有ftp选中
-		if($(this).attr('data-state') == 'true') {
-			_config.useFtp = true;
-		} else {
-			_config.useFtp = false;
-		}
-
-		LS.setItem('config', JSON.stringify(_config));
-	})
-
-	// 编辑ftp信息
-	$ftpMod.on('click', '.btn-edit', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var $parent = $(this).parents('.item-ftp');
-		var dataTag = $parent.find('input[type=checkbox]').attr('data-tag');
-		$parent.addClass('editing');
-		$(this).tooltip('hide');
-
-		// 显示待编辑的ftp信息
-		_config.ftpConfigs.forEach(function (ftpConfig) {
-			if(ftpConfig.addTime == dataTag) {
-				$ftpMod.addClass('editing');
-				$ftpMod.find('.js_btnOk').attr('data-tag',dataTag);
-
-				lodash.forEach(ftpConfig, function (item, key) {
-					if(typeof item === 'object') {
-						item = item.join(',');
-					}
-					$ftpMod.find('.input').each(function () {
-						var $this = $(this);
-						var _tag = $this.attr('data-tag');
-						if( _tag == key ) {
-							$this.val(item)
-						}
-			 		})
-				})
-			}
-		})
-	})
-
-	// 删除配置
-	$ftpMod.on('click', '.btn-del', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var $parent = $(this).parents('.item-ftp');
-		var dataTag = $parent.find('input[type=checkbox]').attr('data-tag');
-
-		// 删除相应的ftp信息
-		var delIndex = NaN;
-		lodash.forEach(_config.ftpConfigs, function (ftpConfig, key) {
-			if(ftpConfig.addTime == dataTag) {
-				delIndex = key;
-				if(ftpConfig.current == true) {
-					_config.useFtp = false;
-				}
-				return;
-			}
-		});
-		if(delIndex != NaN) {
-			_config.ftpConfigs.splice(delIndex, 1);
-			LS.setItem('config', JSON.stringify(_config));
-			// 去掉选择面板中的相应数据
-			$parent.addClass('remove');
-		}
-		
-	})
-  
-	// 添加ftp信息
-	$ftpMod.on('click', '.btn-add', function () {
-		$(this).tooltip('hide');
-		$ftpMod.addClass('editing');
-	})
-
-	// 提交ftp信息
-	$ftpMod.on('click', '.js_btnOk', function () {
-		var _config = JSON.parse(LS.getItem('config'));
-		var $this = $(this);
-		var dataTag = $this.attr('data-tag');
-		
-		if(dataTag == '') {
-			var requiredOK = true;
-			// 获取添加的ftp配置信息
-			var ftpConfigNew = {};
-			$ftpMod.find('.input').each(function () {
-				var $this = $(this);
-				var _tag = $this.attr('data-tag');
-				var _val = $this.val().trim();
-				// 检测必填项
-				if($this.attr('required') && _val == '') {
-					requiredOK = false;
-					$this.focus();
-				}
-				// 去除白名单列表中的空格
-				if(_tag == 'wl') {
-					_val = _val.replace(/\s+/g,'').split(',');
-				}
-				ftpConfigNew[_tag] = _val;
-				ftpConfigNew['addTime'] = kakaTime();
-				ftpConfigNew['current'] = false;
-			})
-
-			if(requiredOK) {
-				// 存入localStorage
-				_config.ftpConfigs.push(ftpConfigNew);
-				// 在选择面板显示添加的ftp
-				var html = '<li class="item item-ftp"><label class="inner"><input type="checkbox" tabindex="-1" data-tag="'+ftpConfigNew.addTime+'" data-state="false"><span class="txt">'+ftpConfigNew.name+'</span></label><span class="actions"><a href="javascript:;" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑"></a><a href="javascript:;" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除"></a></span></li>'
-				$ftpMod.find('.ftp-list').append(html);
-				LS.setItem('config', JSON.stringify(_config));
-				// 重置
-				$ftpMod.removeClass('editing');
-				$ftpMod.find('.input').val('');
-				$this.attr('data-tag','');
-			}
-
-		} else {
-			// 更新修改的ftp
-			_config.ftpConfigs.forEach(function (ftpConfig) {
-				if(ftpConfig.addTime == dataTag) {
-					var requiredOK = true;
-					$ftpMod.find('.input').each(function () {
-						var $this = $(this);
-						var _tag = $this.attr('data-tag');
-						var _val = $this.val().trim();
-						// 检测必填项
-						if($this.attr('required') && _val == '') {
-							requiredOK = false;
-							$this.focus();
-						}
-						if(_tag == 'wl') {
-							_val = _val.replace(/\s+/g,'').split(',');
-						}
-						ftpConfig[_tag] = _val;
-					})
-
-					if(requiredOK) {
-						$ftpMod.find('.item-ftp.editing .txt').text(ftpConfig['name']);
-						LS.setItem('config', JSON.stringify(_config));
-						// 重置
-						$ftpMod.removeClass('editing');
-						$ftpMod.find('.item-ftp').removeClass('editing');
-						$ftpMod.find('.input').val('');
-						$this.attr('data-tag','');
-					}
-				}
-			})
-		}
-	})
-	
-	// 取消添加ftp
-	$ftpMod.on('click', '.js_btnCancel', function () {
-		$ftpMod.find('.input').val('');
-		$ftpMod.find('.js_btnOk').attr('data-tag','');
-		$ftpMod.find('.item-ftp').removeClass('editing');
-		$ftpMod.removeClass('editing');
-	})
-
-
 }
 
 
