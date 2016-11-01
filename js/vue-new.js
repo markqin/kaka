@@ -366,13 +366,12 @@ var main = {
 		//中间核心功能
 		// 拖拽文件
 		dragDrop(function (files) {
-			var config = JSON.parse(LS.getItem('config'));
 			var filesPath = self.handleReadyFiles(files);
 			readyFilesPath.push.apply(readyFilesPath, filesPath);
 			self._control_.execBtnText = "开始处理";
 
 			// 拖拽处理模式
-			if(!config.useClickMode) {
+			if(!set._config_.useClickMode) {
 				self.handFiles(filesPath, function (err) {
 					self._control_.dropMaskHide = true;
 					self._control_.execBtnText = '重新处理';
@@ -391,18 +390,12 @@ var main = {
 		$(event.currentTarget).tooltip('hide');
 		this.handWindowFiles();
 	},
-	update_data:function(){
-		var config = JSON.parse(LS.getItem('config'));
-		config.useClickMode = control.useClickMode;
-		LS.setItem('config', JSON.stringify(config));
-		console.log(JSON.stringify(config));
-	},
 	// 点击处理模式
 	exec_file:function(){
-		var config = JSON.parse(LS.getItem('config')),self = this,
+		var self = this,
 		_readyFilesPath = lodash.uniq(readyFilesPath);
 		
-		if(config.useClickMode) {
+		if(set._config_.useClickMode) {
 			var _filesPath;
 			if(_readyFilesPath.length > 0) {
 				_filesPath = _readyFilesPath;
@@ -442,8 +435,8 @@ var main = {
 					})
 				})
 
-				var config = JSON.parse(LS.getItem('config'));
-				if(config.useClickMode) {
+
+				if(!set._config_.useClickMode) {
 					var filesPath = self.handleReadyFiles(readyWinFilesInfo);
 					// 执行处理文件
 					self.handFiles(filesPath, function (err) {
@@ -546,8 +539,6 @@ var main = {
 		}
 		LS.setItem('lastFiles', JSON.stringify(lastFiles));
 
-		// 获取当前配置
-		var config = JSON.parse(LS.getItem('config'));
 
 		// 处理时阻止事件遮罩
 		self._control_.dropMaskHide = true;
@@ -563,7 +554,7 @@ var main = {
 		$summaryBox.addClass('none');
 
 		// 开始处理文件
-		kakaFiles(files, config, function (err, allFilesInfo) {
+		kakaFiles(files, set._config_, function (err, allFilesInfo) {/////zhelichuwenti
 			var end =  +new Date();
 			log('共耗时: '+ (end - start)/1000+'s', 'info');
 
@@ -572,7 +563,7 @@ var main = {
 					cb(err);
 				}
 			} else {
-				if(config.useFtp) {
+				if(set._config_.useFtp) {
 					// 开始上传FTP
 					log('开始上传文件到服务器... ', 'log');
 
@@ -583,8 +574,8 @@ var main = {
 							}
 						} else {
 							// 删除临时文件夹
-							if(!config.saveLocal) {
-								self.delTempDir(allFilesInfo, config);
+							if(!set._config_.saveLocal) {
+								self.delTempDir(allFilesInfo, set._config_);
 							}
 
 							// 显示提单详细数据
