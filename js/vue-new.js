@@ -33,15 +33,10 @@ var kakaFilePre = require('./js/kaka-files-preprocess');
 var kakaCSS = require('./js/kaka-handle-css');
 var kakaImgMin = require('./js/kaka-image-minify');
 var dragDrop = require('./js/drag-drop.js');
-// var uploadFtp = require('./js/upload-ftp.js');
+var uploadFtp = require('./js/upload-ftp.js');
 var kakaUpload = require('./js/kaka-upload.js');
 var log = require('./js/log.js');
 var Clipboard = require("./js/vendor/clipboard.min.js");
-// 收集待处理文件路径
-var readyFilesPath = [];
-// 收集窗口打开文件信息
-var readyWinFilesInfo = [];
-
 
 
 var set = {
@@ -350,9 +345,15 @@ var main = {
 		execBtnText:'开始处理',
 		dropMaskHide:true,
 		$fileList:{
-			filesInfoData:null
+			filesInfoData:{
+				filesInfo:[]
+			},//待处理文件的的信息
+			filesInfoHtml:[],//待处理文件的html
+			readyFilesPath:[],//待处理文件的路径
 		},
-		dropEnd:false
+		dropEnd:false,
+		summaryBoxHide:true,
+		logHtml:''
 	},
 	init:function(){
 		var time_load_end = +new Date();
@@ -366,13 +367,12 @@ var main = {
 		//中间核心功能
 		// 拖拽文件
 		dragDrop(function (files) {
-			var filesPath = self.handleReadyFiles(files);
-			readyFilesPath.push.apply(readyFilesPath, filesPath);
+			self.handleReadyFiles(files);//初始化处理文件
 			self._control_.execBtnText = "开始处理";
 
 			// 拖拽处理模式
 			if(!set._config_.useClickMode) {
-				self.handFiles(filesPath, function (err) {
+				self.handFiles(self._control_.$fileList.readyFilesPath,function (err) {
 					self._control_.dropMaskHide = true;
 					self._control_.execBtnText = '重新处理';
 				});
@@ -393,7 +393,7 @@ var main = {
 	// 点击处理模式
 	exec_file:function(){
 		var self = this,
-		_readyFilesPath = lodash.uniq(readyFilesPath);
+		_readyFilesPath = lodash.uniq(self._control_.$fileList.readyFilesPath);
 		
 		if(set._config_.useClickMode) {
 			var _filesPath;
@@ -408,17 +408,16 @@ var main = {
 			if(_filesPath) {
 				self._control_.execBtnText = '处理中...';
 				self.handFiles(_filesPath, function (err) {
-					self._control_.dropMaskHide = false;
+					self._control_.dropMaskHide = true;
 					self._control_.execBtnText = '重新处理';
 				});
 			}
 		}
 	},
 	// 处理通过系统窗口打开的文件
-	handWindowFiles:function () {
-		var self = this;
-		$('#js_openFilesBtn').unbind('click');
-
+	handWindowFiles:function ($event) {
+		var self = this,readyWinFilesInfo = [];
+		document.getElementById('js_openFilesBtn').removeEventListener ('click',function(){});
 		dialog.showOpenDialog({
 			filters: [
 				{ name: 'All Files', extensions: ['*'] }
@@ -434,29 +433,23 @@ var main = {
 						size : self.getFileSize(file)
 					})
 				})
-
-
-				if(!set._config_.useClickMode) {
-					var filesPath = self.handleReadyFiles(readyWinFilesInfo);
+				if(!set._config_.useClickMode) {//拖拽模式
+					self.handleReadyFiles(readyWinilesInfo);
 					// 执行处理文件
-					self.handFiles(filesPath, function (err) {
+					self.handFiles(readyFilesPath,function (err) {
 						self._control_.dropMaskHide = true;
 					});
 				} else {
 					self._control_.execBtnText = "开始处理";
-					var filesPath = self.handleReadyFiles(readyWinFilesInfo);
 					// 更新待处理文件路径列表
-					readyFilesPath.push.apply(readyFilesPath, filesPath);
+					self.handleReadyFiles(readyWinilesInfo);
+					
 				}
 			}
-			// 通过系统窗口打开文件(重新绑定事件)/////////////后面再改
-			$('#js_openFilesBtn').on('click', function () {
-				self.handWindowFiles();
-			})
-			.tooltip('hide')
-			.on('mouseleave', function () {
-				$(this).tooltip('hide')
-			})
+			// 通过系统窗口打开文件
+			document.getElementById('js_openFilesBtn').addEventListener('click', function () {
+				self.openFiles();
+			});
 		})
 	},
 	/**
@@ -467,76 +460,61 @@ var main = {
 	 * @return {Array}
 	 */
 	handleReadyFiles: function(files) {
-	  var filesInfo = files,self = this;
-	  this._control_.dropEnd = true;
-	  
-	  // 清除上次处理的log///////////
-	  $('#js_logBox').html('');
+		var self = this;
+	  	var filesInfo = files;//拖进来的文件
+	  	this._control_.dropEnd = true;
 
-	  // 取出暂存数据
-	  var nowFilesData = self._control_.$fileList.filesInfoData;
-	  if(nowFilesData) {
-	    filesInfo = filesInfo.concat(nowFilesData.filesInfo);
-	  }
+		// 清除上次处理的log
+		document.getElementById('js_logBox').innerHtml = "";
 
-	  // 存入数据
-	  var filesInfoData = {
-	    filesInfo : filesInfo
-	  }
-	  self._control_.$fileList.filesInfoData = filesInfoData;
+		// 取出暂存数据
+		var nowFilesData = self._control_.$fileList.filesInfoData;
+		if(nowFilesData.filesInfo.length) {
+			//拖进来的文件跟原来的文件数据连接起来
+			filesInfo = filesInfo.concat(nowFilesData.filesInfo);
+		}
 
-	  // 数据去重
-	  var flags = {};
-	  var filesInfoUniq = filesInfo.filter(function(item) {
-	      if (flags[item.path]) {
-	        return false;
-	      }
-	      flags[item.path] = true;
-	      return true;
-	  });
+		// 数据去重
+		var flags = {};
+		var filesInfo = filesInfo.filter(function(item) {
+		  if (flags[item.path]) {
+		    return false;
+		  }
+		  flags[item.path] = true;
+		  return true;
+		});
 
-	  // 取出文件信息
-	  var filesInfoHtml = '';
-	  var filesPath = [];
-	  filesInfoUniq.forEach(function (fileInfo) {
-	  	// 路径标准化
-	    var filePath = fileInfo.path.split(path.sep).join('/');
-	    filesPath.push(filePath);
-	    var fileInfoHtml =  filePath+' - (' + self.prettyBytes(fileInfo.size) + ')'
-	    filesInfoHtml += '<li class="item">'+fileInfoHtml+'</li>';
-	  })
-	  
-	  // 写入文件列表/////
-	  filesInfoHtml = '<h3>待处理文件：</h3><ul class="file-list">'+filesInfoHtml+'</ul>';
-	  $("#js_fileList").html(filesInfoHtml);
-	  $("#js_fileList").removeClass('none');
-	  $('#js_summaryBox').addClass('none');
-	  var $showBox = $('#js_showLogArea');
-	  $showBox.scrollTop($showBox[0].scrollHeight);
+		// 存入数据
+		self._control_.$fileList.filesInfoData.filesInfo = filesInfo;
 
+		var filesInfoHtml = [],filesPath = [];
+		filesInfo.forEach(function (fileInfo) {
+			// 路径标准化,存储
+			var filePath = fileInfo.path.split(path.sep).join('/');
+			filesPath.push(filePath);
 
-	  // 返回文件路径
-	  return filesPath;
+			//html显示，存储
+			var fileInfoHtml = filePath+' - (' + self.prettyBytes(fileInfo.size) + ')';
+			filesInfoHtml.push(fileInfoHtml);
+		})
+ 		
+		self._control_.$fileList.readyFilesPath = filesPath;
+		self._control_.$fileList.filesInfoHtml = filesInfoHtml;
+		self._control_.summaryBoxHide = true;
+
+		var $showBox = document.getElementById("js_showLogArea");
+		$showBox.scrollTop = $showBox.scrollHeight;
+
 	},
 
 	// 处理文件
-	handFiles: function(files, cb) {
+	handFiles: function(files,cb) {
 		var start = +new Date(),self = this;
-
-		// 清空待处理文件数组
-		readyFilesPath = [];
-		readyWinFilesInfo = [];
-
-		// 记录待处理的文件信息，供F5功能使用
-		var lastFilesText = [];
-		$('#js_fileList .item').each(function (item) {/////
-			lastFilesText.push($(this).text());
-		});
-
 		var lastFiles = {
-			text : lastFilesText,
-			paths : files
+			text : self._control_.$fileList.filesInfoHtml,
+			paths : self._control_.$fileList.readyFilesPath
 		}
+
 		LS.setItem('lastFiles', JSON.stringify(lastFiles));
 
 
@@ -544,17 +522,20 @@ var main = {
 		self._control_.dropMaskHide = true;
 
 		// 重置待处理文件信息
-		self._control_.$fileList.filesInfoData = null;
+		self._control_.$fileList.readyFilesPath = [];
+		self._control_.$fileList.filesInfoHtml = [];
+		self._control_.$fileList.filesInfoData = {filesInfo:[]};
 
 		// 清除上次处理的log
-		$('#js_logBox').html('');//////
-
+		$('#js_logBox').html('');
+		// self._control_.logHtml = '';
+		self._control_.summaryBoxHide = true;
 		// 提单详细
-		var $summaryBox = $('#js_summaryBox');
-		$summaryBox.addClass('none');
+		// var $summaryBox = $('#js_summaryBox');//////////////
+		// $summaryBox.addClass('none');
 
 		// 开始处理文件
-		kakaFiles(files, set._config_, function (err, allFilesInfo) {/////zhelichuwenti
+		kakaFiles(files, set._config_, function (err, allFilesInfo) {
 			var end =  +new Date();
 			log('共耗时: '+ (end - start)/1000+'s', 'info');
 
@@ -563,7 +544,7 @@ var main = {
 					cb(err);
 				}
 			} else {
-				if(set._config_.useFtp) {
+				if(set._config_.ftptag.length>0) {
 					// 开始上传FTP
 					log('开始上传文件到服务器... ', 'log');
 
@@ -589,7 +570,7 @@ var main = {
 						}
 					})
 
-					/*uploadFtp(allFilesInfo, function (err, ftpResults) {
+					uploadFtp(allFilesInfo, function (err, ftpResults) {
 						if(err) {
 							if(cb) {
 								cb(err);
@@ -597,12 +578,12 @@ var main = {
 						} else {
 							// 删除临时文件夹
 							if(!config.saveLocal) {
-								delTempDir(allFilesInfo, config);
+								self.delTempDir(allFilesInfo, config);
 							}
 
 							// 显示提单详细数据
 							if(ftpResults.bill.length > 0) {
-								showDetail($summaryBox, ftpResults);
+								self.showDetail($summaryBox, ftpResults);
 							}
 
 							if(cb) {
@@ -610,7 +591,7 @@ var main = {
 							}
 						}
 
-					})*/
+					})
 				} else {
 					if(cb) {
 						cb();
@@ -633,14 +614,17 @@ var main = {
 		var lastFiles = JSON.parse(LS.getItem('lastFiles'));
 
 		if(lastFiles) {
-			$(document).unbind('keyup');
+
+			document.removeEventListener('keyup',function(){});
 			self._control_.execBtnText='处理中...';
 			// 更新待文件处理信息，与最近一次操作文件保持一致
-			var lastFilesText = '';
-			lastFiles.text.forEach(function (item) {
-				lastFilesText += '<li class="item">'+item+'</li>';
-			})
-			$('#js_fileList .file-list').html(lastFilesText);////////////
+			self._control_.$fileList.readyFilesPath = lastFiles.paths;
+			self._control_.$fileList.filesInfoHtml = lastFiles.text;
+			self._control_.summaryBoxHide = true;
+			
+
+			var $showBox = document.getElementById("js_showLogArea");
+			$showBox.scrollTop = $showBox.scrollHeight;
 
 			// 处理文件
 			var lastFilesPath = lastFiles.paths;
@@ -650,11 +634,11 @@ var main = {
 					self._control_.dropMaskHide = true;
 					
 					// 重新绑定F5事件
-					$(document).bind('keyup',function(e){/////
-					    if(e.keyCode === 116) {
+					document.addEventListener('keyup',function(){
+						if(e.keyCode === 116) {
 					    	self.handLastFiles();
 					    }
-					});
+					})
 				});
 			}
 
