@@ -271,8 +271,8 @@ var set = {
 	// 提交ftp信息
 	comfirm_ftp:function(){
 		var self = this;
-		var $ftpMod = $('#js_ftp');
-		var $ftpListWrap = $ftpMod.find('.ftp-list');
+		var $ftpMod = document.getElementById('js_ftp');
+		var $ftpListWrap =  $ftpMod.getElementsByClassName('ftp-list')[0];
 		var isNew = true,//是否新增
 			dataTag = self._config_.ftp_editing.addTime;
 
@@ -291,12 +291,20 @@ var set = {
 		if(!!isNew){
 			self._config_.ftpConfigs.push(self._config_.ftp_editing);
 			// 在选择面板显示添加的ftp
-			var html = '<li class="item item-ftp"><label class="inner"><input type="checkbox" tabindex="-1" v-on:change="select_ftp"  v-model="config.ftptag" value='+self._config_.ftp_editing.addTime+' ><span class="txt">'+self._config_.ftp_editing.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑" v-on:click="edit_ftp('+self._config_.ftp_editing.addTime+',$event)"></a><a href="javascript:;" tabindex="-1" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除" v-on:click="delete_ftp('+self._config_.ftp_editing.addTime+',$event)" ></a></span></li>';
-			$ftpListWrap.append(html);
+			var li = document.createElement("li"); 
+			li.className = "item item-ftp";
+			var html = '<label class="inner"><input type="checkbox" tabindex="-1" v-on:change="select_ftp"  v-model="config.ftptag" value='+self._config_.ftp_editing.addTime+' ><span class="txt">'+self._config_.ftp_editing.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑" v-on:click="edit_ftp('+self._config_.ftp_editing.addTime+',$event)"></a><a href="javascript:;" tabindex="-1" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除" v-on:click="delete_ftp('+self._config_.ftp_editing.addTime+',$event)" ></a></span>';
+
+			
+			li.innerHTML = html;
+			$ftpListWrap.appendChild(li);
+			this.cancel_ftp();//重置
+			this.update_data();
+			return li;
+		}else{
+			this.cancel_ftp();//重置
 			this.update_data();
 		}
-		this.cancel_ftp();//重置
-		this.update_data();
 	},
 
 	initData:function (){
@@ -322,8 +330,8 @@ var set = {
 	// FTP配置
 	setFtpInfo:function () {
 		var self = this;
-		var $ftpMod = $('#js_ftp');
-		var $ftpListWrap = $ftpMod.find('.ftp-list');
+		var $ftpMod = document.getElementById('js_ftp');
+		var $ftpListWrap =  $ftpMod.getElementsByClassName('ftp-list')[0];
 
 		// 显示已有ftp信息
 		var listHtml = '';
@@ -337,7 +345,7 @@ var set = {
 			}
 			listHtml += '<li class="item item-ftp"><label class="inner"><input type="checkbox" '+isChecked+' tabindex="-1" v-on:change="select_ftp"  v-model="config.ftptag" value='+item.addTime+' ><span class="txt">'+item.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑" v-on:click="edit_ftp('+item.addTime+',$event)"></a><a href="javascript:;" tabindex="-1" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除" v-on:click="delete_ftp('+item.addTime+',$event)" ></a></span></li>'
 		});
-		$ftpListWrap.append(listHtml);
+		$ftpListWrap.innerHTML = listHtml;
 	}
 };
 var main = {
@@ -895,7 +903,12 @@ $(document).ready(function () {
 			},
 			// 提交ftp信息
 			comfirm_ftp:function(){
-				set.comfirm_ftp();
+				var li = set.comfirm_ftp();
+				console.log(li);
+				if(!!li){
+					this.$compile(li);
+				};
+				 
 			},
 			exec_file:function(){
 				main.exec_file();
