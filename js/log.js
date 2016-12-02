@@ -13,17 +13,19 @@ class Log{
   }
 
   scrollBottom() {
-    let $showBox = $('#js_showLogArea');
-    $showBox.scrollTop($showBox[0].scrollHeight);
+    let $showBox = document.getElementById('js_showLogArea');
+    $showBox.scrollTop($showBox.scrollHeight);
   }
 
   // generate structure and insert into exsiting DOM
   generateLog(){
-    // Log area wrapper
-    let $LogWrapper = $('#js_logBox');
+    let $LogWrapper = document.getElementById('js_logBox');
     let logHtml = '<p class="txt '+ this.lType.toLowerCase() +'">'+ this.msg +'</p>';
-
-    $LogWrapper.append($(logHtml));
+    // Log area wrapper
+    let logEle = document.createElement('p');
+    logEle.className = 'txt'+ this.lType.toLowerCase() ;
+    logEle.innerHTML = this.msg;
+    $LogWrapper.innerHTML+=logHtml;
     this.scrollBottom();
   }
 }

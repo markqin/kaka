@@ -12,13 +12,13 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
 
 </head>
 <body id="j-vue">
-  <b class="page-mask" id="js_pageMask"></b>
+  <b class="page-mask" id="js_pageMask" v-show="control.pageMask"></b>
   <div class="layout-h-wrap">
 
     <div class="col-main">
 
       <!-- 可拖拽处理区域 -->
-      <div class="main-wrap layout-v-wrap " id="js_dropZone" v-bind:class="{'none':control.dropEnd}">
+      <div class="main-wrap layout-v-wrap " id="js_dropZone" v-bind:class='{"dropEnd":control.dropEnd}'>
         <!-- 拖拽按钮 -->
         <div class="drag-area"></div>
         <!-- 顶部条 -->
@@ -43,7 +43,7 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
             </ul>
           </div>
           <div class="mod-log mod" id="js_logBox">
-            <!-- {{ logHtml }} -->
+
           </div>
           <!-- 提单信息摘要 -->
           <div class="mod-summary mod" id="js_summaryBox" v-bind:class="{'none':control.summaryBoxHide}">
@@ -73,7 +73,7 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
         
       </div>
 
-      <b class="drop-mask" id="js_dropMask" v-bind:class="{'none':control.dropMaskHide}"></b>
+      <b class="drop-mask" id="js_dropMask" v-show="control.dropMask"></b>
       
     </div>
     

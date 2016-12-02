@@ -105,7 +105,7 @@ function init(){
 	
 	bindEvent();
 }
-function initMode(){//拖拽模式or点击处理//////////////
+function initMode(){//拖拽模式or点击处理
 	var config = JSON.parse(LS.getItem('config'));
 	control.useClickMode = config.useClickMode;
 }
@@ -119,7 +119,7 @@ function bindEvent(){
 		config.execBtnText = "开始处理";
 
 		// 拖拽处理模式
-		if(!config.useClickMode) {//////////////////////////////
+		if(!config.useClickMode) {
 			handFiles(filesPath, function (err) {
 				config.dropMaskHide = true;
 				config.execBtnText = '重新处理';

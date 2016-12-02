@@ -77,8 +77,8 @@ var set = {
 		// 是否使用FTP
 		ftptag : [],//数组形式，vue要求的
 		// FTP配置
-		ftpConfigs : [],
-		// ftpConfigs : [{"name":"102","addTime":"161017162644","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdocs","wl":["touch","mollyywang","brand","qz-act"]},{"name":"103","addTime":"161017162111","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdoc","wl":["touch","mollyywang","brand","qz-act"]}],
+		// ftpConfigs : [],
+		ftpConfigs : [{"name":"102","addTime":"161017162644","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdocs","wl":["touch","mollyywang","brand","qz-act"]},{"name":"103","addTime":"161017162111","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdoc","wl":["touch","mollyywang","brand","qz-act"]}],
 		// 不压缩JS
 		noMinJS : false,
 		// 是否使用拖拽处理模式
@@ -163,7 +163,7 @@ var set = {
 		//检查更新
 		var cur = "0.2.2";
 		if(kakaParams.version!=cur){
-			alert("版本有更新，将退出程序并下载新版本！");
+			alert("版本有更新，请下载新版本！");
 			if (process.platform != 'darwin') {//windows
 				shell.openExternal(kakaParams.windowslink);
 				window.close();
@@ -275,7 +275,7 @@ var set = {
 		var $ftpListWrap =  $ftpMod.getElementsByClassName('ftp-list')[0];
 		var isNew = true,//是否新增
 			dataTag = self._config_.ftp_editing.addTime;
-
+		var labelArr =  $ftpListWrap.getElementsByTagName('label');
 
 		self._config_.ftp_editing['wl'] = self._config_.ftp_editing['wl'].replace(/\s+/g,'').split(',');
 		// 更新修改的ftp
@@ -284,10 +284,10 @@ var set = {
 				isNew = false;//是编辑，不是新增
 				lodash.forEach(ftpConfig,function(item, key){
 					ftpConfig[key] = self._config_.ftp_editing[key];
-				})
-				$('[value='+dataTag+']').next('span').text(self._config_.ftp_editing.name);
+				});
 			}
 		});
+
 		if(!!isNew){
 			self._config_.ftpConfigs.push(self._config_.ftp_editing);
 			// 在选择面板显示添加的ftp
@@ -302,6 +302,14 @@ var set = {
 			this.update_data();
 			return li;
 		}else{
+			//// 在选择面板中修改更改过的名称
+			for(var i=0;i<labelArr.length;i++){
+				var span = labelArr[i].getElementsByTagName('span')[0];
+				var input = labelArr[i].getElementsByTagName('input')[0];
+				if(eval(input).value==dataTag){
+					span.innerHTML=self._config_.ftp_editing.name;
+				}
+			};
 			this.cancel_ftp();//重置
 			this.update_data();
 		}
@@ -320,7 +328,6 @@ var set = {
 			} catch(err) {}
 		}
 		// setTimestamp 时间戳
-		console.log(JSON.stringify(self._config_));
 		LS.setItem('config', JSON.stringify(self._config_));
 		//FTP
 		self.setFtpInfo(self._config_);
@@ -345,27 +352,28 @@ var set = {
 			}
 			listHtml += '<li class="item item-ftp"><label class="inner"><input type="checkbox" '+isChecked+' tabindex="-1" v-on:change="select_ftp"  v-model="config.ftptag" value='+item.addTime+' ><span class="txt">'+item.name+'</span></label><span class="actions"><a href="javascript:;" tabindex="-1" class="btn-edit" data-placement="top" data-toggle="tooltip" data-original-title="编辑" v-on:click="edit_ftp('+item.addTime+',$event)"></a><a href="javascript:;" tabindex="-1" class="btn-del" data-placement="top" data-toggle="tooltip" data-original-title="删除" v-on:click="delete_ftp('+item.addTime+',$event)" ></a></span></li>'
 		});
-		$ftpListWrap.innerHTML = listHtml;
+		$ftpListWrap.innerHTML += listHtml;
 	}
 };
 var main = {
 	_control_:{
 		execBtnText:'开始处理',
-		dropMaskHide:true,
+		pageMask:false,
+		dropMask:false,
+		dropEnd:true,
 		$fileList:{
 			filesInfoData:{
 				filesInfo:[]
-			},//待处理文件的的信息
+			},//待处理文件的信息
 			filesInfoHtml:[],//待处理文件的html
 			readyFilesPath:[],//待处理文件的路径
 		},
-		dropEnd:false,
 		summaryBoxHide:true,
 		logHtml:''
 	},
 	init:function(){
 		var time_load_end = +new Date();
-		$('#js_pageMask').hide();
+		this._control_.pageMask = false;
 		log('模块预加载成功!', 'ok');
 		log('共耗时: '+ (time_load_end - time_load_start)/1000+'s', 'info');
 		this.bind_event();
@@ -381,7 +389,7 @@ var main = {
 			// 拖拽处理模式
 			if(!set._config_.useClickMode) {
 				self.handFiles(self._control_.$fileList.readyFilesPath,function (err) {
-					self._control_.dropMaskHide = true;
+					self._control_.dropMask = false;
 					self._control_.execBtnText = '重新处理';
 				});
 			}
@@ -416,7 +424,7 @@ var main = {
 			if(_filesPath) {
 				self._control_.execBtnText = '处理中...';
 				self.handFiles(_filesPath, function (err) {
-					self._control_.dropMaskHide = true;
+					self._control_.dropMask = false;
 					self._control_.execBtnText = '重新处理';
 				});
 			}
@@ -445,7 +453,7 @@ var main = {
 					self.handleReadyFiles(readyWinilesInfo);
 					// 执行处理文件
 					self.handFiles(readyFilesPath,function (err) {
-						self._control_.dropMaskHide = true;
+						self._control_.dropMask = true;
 					});
 				} else {
 					self._control_.execBtnText = "开始处理";
@@ -470,7 +478,7 @@ var main = {
 	handleReadyFiles: function(files) {
 		var self = this;
 	  	var filesInfo = files;//拖进来的文件
-	  	this._control_.dropEnd = true;
+	  	this._control_.dropEnd = false;
 
 		// 清除上次处理的log
 		document.getElementById('js_logBox').innerHtml = "";
@@ -527,7 +535,7 @@ var main = {
 
 
 		// 处理时阻止事件遮罩
-		self._control_.dropMaskHide = true;
+		self._control_.dropMask = true;
 
 		// 重置待处理文件信息
 		self._control_.$fileList.readyFilesPath = [];
@@ -535,12 +543,12 @@ var main = {
 		self._control_.$fileList.filesInfoData = {filesInfo:[]};
 
 		// 清除上次处理的log
-		$('#js_logBox').html('');
-		// self._control_.logHtml = '';
+		var $LogWrapper = document.getElementById('js_logBox');
+   		$LogWrapper.innerHTML ="";
+
 		self._control_.summaryBoxHide = true;
 		// 提单详细
-		// var $summaryBox = $('#js_summaryBox');//////////////
-		// $summaryBox.addClass('none');
+		// var $summaryBox = document.getElementById("js_summaryBox");
 
 		// 开始处理文件
 		kakaFiles(files, set._config_, function (err, allFilesInfo) {
@@ -569,7 +577,7 @@ var main = {
 
 							// 显示提单详细数据
 							if(result.bill.length > 0) {
-								self.showDetail($summaryBox, result);
+								self.showDetail(result);
 							}
 
 							if(cb) {
@@ -591,7 +599,7 @@ var main = {
 
 							// 显示提单详细数据
 							if(ftpResults.bill.length > 0) {
-								self.showDetail($summaryBox, ftpResults);
+								self.showDetail(ftpResults);
 							}
 
 							if(cb) {
@@ -639,7 +647,7 @@ var main = {
 			if(lastFilesPath.length > 0) {
 				self.handFiles(lastFilesPath, function (err) {
 					self._control_.execBtnText='重新处理';
-					self._control_.dropMaskHide = true;
+					self._control_.dropMask = true;
 					
 					// 重新绑定F5事件
 					document.addEventListener('keyup',function(){
@@ -653,12 +661,12 @@ var main = {
 		}
 	},
 
-	// 显示提单详细数据 /////
-	showDetail: function(box, ftpResults) {
+	// 显示提单详细数据 
+	showDetail: function(ftpResults) {
 		var self = this;
-		box.removeClass('none');
-	    var $showBox = $('#js_showLogArea');
-	    $showBox.scrollTop($showBox[0].scrollHeight);
+		self._control_.summaryBoxHide=false;
+	    var $showBox = $('#js_showLogArea'),box=$('#js_summaryBox');
+	    $showBox.scrollTop = $showBox.scrollHeight;
 	    var $detailPanel = $('#js_detailPanel');
 	    var $dropZone = $('#js_dropZone');
 
@@ -677,6 +685,7 @@ var main = {
 
 	    var $webFilesShowBox = $('#js_webFilesShowBox');
 	    // 在log区显示HTML文件地址
+
 		$webFilesShowBox.html(webSummaryHtml);
 		// copy html地址
 		$webFilesShowBox.find('.btn-copy').each(function () {
@@ -707,6 +716,8 @@ var main = {
 			billHtml += '<p>'+item+'</p>';
 		})
 
+		self._control_.dropEnd = true;;
+
 	    // 显示详细文件地址
 	    box.on('click', '#js_viewWeb', function () {
 	    	$(this).tooltip('hide');
@@ -724,7 +735,7 @@ var main = {
 			$detailPanel.find('.inner').html(billHtml);
 	    })
 	    .on('mouseleave', '#js_viewBill', function () {
-	    	$(this).tooltip('hide')
+	    	$(this).tooltip('hide');
 	    })
 
 	    // 复制提单路径
@@ -755,7 +766,7 @@ var main = {
 	},
 
 	// 删除临时文件夹
-	delTempDi: function(filesArr, opts) {
+	delTempDir: function(filesArr, opts) {
 		var tempDir = [],optDir = [],self = this;
 		filesArr.forEach(function (file) {
 			if(typeof file === 'string') {
@@ -904,7 +915,6 @@ $(document).ready(function () {
 			// 提交ftp信息
 			comfirm_ftp:function(){
 				var li = set.comfirm_ftp();
-				console.log(li);
 				if(!!li){
 					this.$compile(li);
 				};

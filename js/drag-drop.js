@@ -8,12 +8,8 @@ var log = require('./log.js');
 
 module.exports = function(cb) {
 
-  var $dropZoneWrap = $('#js_dropZone');
-  var $dropZone = $('#js_showLogArea');
-  var counter = 0;
-
-  var dropZone = $dropZone.get(0);
-
+  var $dropZoneWrap = document.getElementById('js_dropZone'),
+      dropZone = document.getElementById('js_showLogArea');
   dropZone.addEventListener("dragstart", function(e){
     e.preventDefault();
   }, false);
@@ -32,23 +28,23 @@ module.exports = function(cb) {
 
   dropZone.addEventListener("dragover", function(e){
     e.preventDefault();
-    $dropZoneWrap.addClass('drop-hover');
-    $dropZoneWrap.removeClass('drop-end');
+    addClass($dropZoneWrap,'drop-hover');
+    removeClass($dropZoneWrap,'drop-end');
   }, false);
 
   dropZone.addEventListener("dragleave", function(e){
     e.preventDefault();
-    $dropZoneWrap.removeClass('drop-hover');
+    removeClass($dropZoneWrap,'drop-hover');
   }, false);
 
   dropZone.addEventListener("drop", function (e) {
     e.preventDefault();
-    $dropZoneWrap.removeClass('drop-hover');
-    $dropZoneWrap.addClass('drop-end');
+    removeClass($dropZoneWrap,'drop-hover');
+    addClass($dropZoneWrap,'drop-end');
 
     // 清除上次处理的log
-    $('#js_logBox').html('');
-
+    var $LogWrapper = document.getElementById('js_logBox');
+    $LogWrapper.innerHTML ="";
     // 取出文件信息
     var items = e.dataTransfer.items || [], firstEntry;
     
@@ -234,3 +230,17 @@ function walkFileSystem(directory, callback, error) {
 };*/
 
 
+function hasClass(obj, cls) {
+  return obj.className.match(new RegExp('(\\s|^)' + cls + '(\\s|$)'));
+}
+
+function addClass(obj, cls) {
+    if (!hasClass(obj, cls)) obj.className += " " + cls;
+}
+
+function removeClass(obj, cls) {
+    if (hasClass(obj, cls)) {
+        var reg = new RegExp('(\\s|^)' + cls + '(\\s|$)');
+        obj.className = obj.className.replace(reg, ' ');
+    }
+}
