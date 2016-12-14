@@ -33,7 +33,7 @@ var kakaFilePre = require('./js/kaka-files-preprocess');
 var kakaCSS = require('./js/kaka-handle-css');
 var kakaImgMin = require('./js/kaka-image-minify');
 var dragDrop = require('./js/drag-drop.js');
-var uploadFtp = require('./js/upload-ftp.js');
+// var uploadFtp = require('./js/upload-ftp.js');
 var kakaUpload = require('./js/kaka-upload.js');
 var log = require('./js/log.js');
 var Clipboard = require("./js/vendor/clipboard.min.js");
@@ -586,28 +586,6 @@ var main = {
 						}
 					})
 
-					uploadFtp(allFilesInfo, function (err, ftpResults) {
-						if(err) {
-							if(cb) {
-								cb(err);
-							}
-						} else {
-							// 删除临时文件夹
-							if(!config.saveLocal) {
-								self.delTempDir(allFilesInfo, config);
-							}
-
-							// 显示提单详细数据
-							if(ftpResults.bill.length > 0) {
-								self.showDetail(ftpResults);
-							}
-
-							if(cb) {
-								cb();
-							}
-						}
-
-					})
 				} else {
 					if(cb) {
 						cb();
