@@ -77,8 +77,8 @@ var set = {
 		// 是否使用FTP
 		ftptag : [],//数组形式，vue要求的
 		// FTP配置
-		// ftpConfigs : [],
-		ftpConfigs : [{"name":"102","addTime":"161017162644","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdocs","wl":["touch","mollyywang","brand","qz-act"]},{"name":"103","addTime":"161017162111","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdoc","wl":["touch","mollyywang","brand","qz-act"]}],
+		ftpConfigs : [],
+		// ftpConfigs : [{"name":"102","addTime":"161017162644","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdocs","wl":["touch","mollyywang","brand","qz-act"]},{"name":"103","addTime":"161017162111","current":false,"website":"http://ue.qzone.qq.com","host":"http://10.100.64.102/rz/task/","port":"21000","user":"ui-ars","pw":"isux!@#456","bill":"/usr/local/imgcache/htdoc","wl":["touch","mollyywang","brand","qz-act"]}],
 		// 不压缩JS
 		noMinJS : false,
 		// 是否使用拖拽处理模式
@@ -179,7 +179,7 @@ var set = {
 	update_data:function(){
 		var self = this;
 		LS.setItem('config', JSON.stringify(self._config_));
-		console.log(JSON.stringify(self._config_));
+		// console.log(JSON.stringify(self._config_));
 	},
 	update_timestamp:function(){
 		var self = this;
