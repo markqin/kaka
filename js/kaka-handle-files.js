@@ -202,9 +202,6 @@ function handleCss(files, opts, cb) {
 
                         // CSS文件时间戳注释标记
                         var timestampTag = creatTimeTag(opts);
-                        if(opts.jsTimeTag) {
-                            timestampTag = opts.userName ? '\n#KAKA{content:"'+kakaTime()+','+opts.userName+'"}' : '\n#KAKA{content:"'+kakaTime()+'"}';
-                        }
 
                         newCSS = newCSS+timestampTag;
 
@@ -630,12 +627,21 @@ function creatTimeTag(opts) {
     if(opts.userName) {
         var userName = opts.userName;
         newUserName = userName.slice(0,2)+userName.slice(-1);
-        console.log(newUserName)
-        tag = '\n/* kaka:'+kakaTime()+','+newUserName+' */'
+
+        if(opts.jsTimeTag) {
+            tag = '\n#KAKA{content:"'+kakaTime()+','+newUserName+'"}';
+        } else {
+            tag = '\n/* kaka:'+kakaTime()+','+newUserName+' */';
+        }
     } else {
-        tag = '\n/* kaka:'+kakaTime()+' */';
+        if(opts.jsTimeTag) {
+            tag = '\n#KAKA{content:"'+kakaTime()+'"}';
+        } else {
+            tag = '\n/* kaka:'+kakaTime()+' */';
+        }
     }
     return tag;
+
     // return opts.userName ? '\n/* kaka:'+kakaTime()+','+opts.userName+' */' : '\n/* kaka:'+kakaTime()+' */';
 }
 
