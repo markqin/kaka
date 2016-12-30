@@ -62,7 +62,7 @@ $(document).ready(function () {
 	// 版本检查
 	$("#j_kaka_update").on("click",function(){
 		//检查更新
-		var cur = "0.2.2";
+		var cur = "0.2.3";
 		if(kakaParams.version!=cur){
 			alert("版本有更新，将退出程序并下载新版本！");
 			if (process.platform != 'darwin') {//windows
@@ -79,6 +79,13 @@ $(document).ready(function () {
 
 	$('#j_kaka_info').on('click', function() {
 		shell.openExternal('https://tonytony.club/tool/kaka/');
+	})
+
+	// 所有a链接在系统浏览器打开
+	$('#js_showLogArea').on('click', 'a', function(e) {
+		e.preventDefault();
+		var url = $(this).attr('href');
+		shell.openExternal(url);
 	})
 
 	
@@ -360,7 +367,7 @@ function handFiles(files, cb) {
 						}
 
 						// 显示提单详细数据
-						if(result.bill.length > 0) {
+						if(result && result.bill.length > 0) {
 							showDetail($summaryBox, result);
 						}
 
@@ -370,28 +377,6 @@ function handFiles(files, cb) {
 					}
 				})
 
-				/*uploadFtp(allFilesInfo, function (err, ftpResults) {
-					if(err) {
-						if(cb) {
-							cb(err);
-						}
-					} else {
-						// 删除临时文件夹
-						if(!config.saveLocal) {
-							delTempDir(allFilesInfo, config);
-						}
-
-						// 显示提单详细数据
-						if(ftpResults.bill.length > 0) {
-							showDetail($summaryBox, ftpResults);
-						}
-
-						if(cb) {
-							cb();
-						}
-					}
-
-				})*/
 			} else {
 				if(cb) {
 					cb();
@@ -611,6 +596,11 @@ function prettyBytes(num) {
 
   return (neg ? '-' : '') + num + ' ' + unit;
 };
+
+
+
+
+
 
 
 

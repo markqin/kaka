@@ -533,14 +533,13 @@ function getRootFontSize(css) {
 	var rootFontSize = 16;
 
 	css.walkRules(function (rule) {
-		if(rule.selector == 'html') {
+		if(rule.parent && rule.parent.type === 'atrule') { return; }
+		if (/^(html|:root)$/.test(rule.selectors)) {
 			rule.walkDecls(function (decl) {
-				if(decl.prop == 'font-size') {
+				if (decl.prop === 'font-size') {
 					rootFontSize = Number(decl.value.replace('px',''));
-					return;
 				}
-			})
-			return;
+			});
 		}
 	})
 

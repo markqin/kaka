@@ -625,7 +625,18 @@ function handleJS(jsFiles, opts, cb) {
 
 // 文件时间戳注释标记
 function creatTimeTag(opts) {
-    return opts.userName ? '\n/* kaka:'+kakaTime()+','+opts.userName+' */' : '\n/* kaka:'+kakaTime()+' */';
+    var tag;
+    var newUserName;
+    if(opts.userName) {
+        var userName = opts.userName;
+        newUserName = userName.slice(0,2)+userName.slice(-1);
+        console.log(newUserName)
+        tag = '\n/* kaka:'+kakaTime()+','+newUserName+' */'
+    } else {
+        tag = '\n/* kaka:'+kakaTime()+' */';
+    }
+    return tag;
+    // return opts.userName ? '\n/* kaka:'+kakaTime()+','+opts.userName+' */' : '\n/* kaka:'+kakaTime()+' */';
 }
 
 

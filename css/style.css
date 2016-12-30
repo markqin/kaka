@@ -649,10 +649,14 @@ textarea {
 .mod-log .txt{
   margin-bottom: 10px;
 }
-.mod-log .ok{ color: #30cc71;}
-.mod-log .error{ color: #fa2400;}
-.mod-log .warning{ color: #efc600;}
-.mod-log .info{ color: #3c96e0;}
+.mod-log .ok,
+.mod-log .ok a{ color: #30cc71;}
+.mod-log .error,
+.mod-log .error a{ color: #fa2400;}
+.mod-log .warning,
+.mod-log .warning a{ color: #efc600;}
+.mod-log .info,
+.mod-log .info a{ color: #3c96e0;}
 
 .mod-log .ok:before,
 .mod-log .error:before,
@@ -660,6 +664,9 @@ textarea {
 .mod-log .info:before {
   vertical-align: -3px;
   margin-right: 5px;
+}
+.mod-log a {
+  text-decoration: underline;
 }
 
 

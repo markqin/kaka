@@ -35,9 +35,7 @@ module.exports = function (fileArr, cb) {
 
 		// string表示为待上传文件路径
 		if (typeof file === 'string'){
-			console.log(file)
 			var ftpPath = parsePath(file, ftpCurrent.wl);
-			console.log(ftpPath)
 			if(ftpPath != '') {
 
 				billPaths.push(ftpCurrent.bill+'/'+ftpPath);
@@ -81,7 +79,9 @@ module.exports = function (fileArr, cb) {
 				.then(function (content) {
 
 					var data = {
-						author: config.userName,
+						// author: config.userName,
+						author: ftpCurrent.user,
+						key: ftpCurrent.pw,
 						zip: {
 						    buffer       : content,
 						    filename     : 'kaka-output.zip',
@@ -97,7 +97,7 @@ module.exports = function (fileArr, cb) {
 									cb(err)
 								}
 							} else {
-								if(body.status) {
+								if(body.status == 1) {
 									
 									if(noFtpPathFiles.length > 0) {
 										log('===== 没有上传成功的文件 =====', 'warning');
@@ -116,7 +116,10 @@ module.exports = function (fileArr, cb) {
 										});
 									}
 								} else {
-									log('服务器端出错 status: '+body.status, 'error')
+									log('服务器端出错 : '+body.remark, 'error');
+									if(cb) {
+										cb()
+									}
 								}
 								
 							}
