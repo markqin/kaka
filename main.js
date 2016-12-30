@@ -71,8 +71,8 @@ if (handleSquirrelEvent()) {
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    // width: 800,
-    width: 1200,
+    width: 800,
+    // width: 1200,
     height: 750,
     minWidth: 650,
     minHeight: 750,
@@ -84,7 +84,7 @@ function createWindow() {
   win.loadURL(`file://${__dirname}/index.html`);
 
   // Open the DevTools.
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
   // Emitted when the window is closed.
   win.on('closed', () => {
