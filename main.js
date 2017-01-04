@@ -1,6 +1,6 @@
 const electron = require('electron');
 // Module to control application life.
-const {app} = electron;
+const {app,Menu} = electron;
 // Module to create native browser window.
 const {BrowserWindow} = electron;
 
@@ -71,8 +71,8 @@ if (handleSquirrelEvent()) {
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    // width: 800,
-    width: 1200,
+    width: 800,
+    // width: 1200,
     height: 750,
     minWidth: 650,
     minHeight: 750,
@@ -84,7 +84,7 @@ function createWindow() {
   win.loadURL(`file://${__dirname}/index.html`);
 
   // Open the DevTools.
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
   // Emitted when the window is closed.
   win.on('closed', () => {
@@ -93,6 +93,29 @@ function createWindow() {
     // when you should delete the corresponding element.
     win = null;
   });
+
+  // Create the Application's main menu
+    var template = [{
+        label: "KAKA",
+        submenu: [
+            // { label: "About KAKA", selector: "orderFrontStandardAboutPanel:" },
+            // { type: "separator" },
+            { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+        ]}, {
+        label: "Edit",
+        submenu: [
+            { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+            { type: "separator" },
+            { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+            { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+            { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+            { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+        ]}
+    ];
+
+    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  
 }
 
 // This method will be called when Electron has finished
