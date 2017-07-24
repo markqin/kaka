@@ -1,6 +1,6 @@
 {
   "name": "KAKA",
-  "version": "0.2.2",
+  "version": "0.2.5",
   "main": "main.js",
   "dependencies": {
     "async": "^1.5.0",
@@ -19,6 +19,7 @@
     "needle": "^1.1.0",
     "postcss": "^5.0.13",
     "qrcode-npm": "0.0.3",
+    "rename": "^1.0.4",
     "spritesmith": "^3.0.0",
     "uglify-js": "^2.6.2"
   },
@@ -29,7 +30,7 @@
   "author": {
     "name": "markqin",
     "email": "markqin@gmail.com",
-    "url": "https://github.com/markqin, https://github.com/kmokidd"
+    "url": "https://github.com/markqin"
   },
   "license": "MIT",
   "create-windows-installer": {}

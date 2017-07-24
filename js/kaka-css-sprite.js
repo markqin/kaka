@@ -11,6 +11,7 @@ var mime = require('mime');
 var imageSize = require('image-size');
 var kakaImageMin = require('./kaka-image-minify');
 var log = require('./log');
+var kakaTime = require('./kaka-timestamp');
 
 
 /**
@@ -25,7 +26,8 @@ var defaults = {
 	mobileModel : false,
 	doImageMinfy : true,
 	timestamp : '',
-	useTimestamp : false
+	useTimestampSprite : true,
+	noSpriteBgImgNewName: true
 };
 
 
@@ -114,6 +116,9 @@ function main(opts) {
 
 	        		// 生成@1x图对应retina图的media query样式
 	        		updateMediaQuery(images, spritesData, css, options);
+
+	        		// 非sprite背景图新文件名
+	        		setBgImageNewFileName(images, css, options);
 
 		        	// 返回所有背景图信息
 		        	/*var allImagesInfo = {
@@ -675,7 +680,7 @@ function saveSprites(css, images, opts, sprites, cb) {
 		var types = sprite.types != '' ? '.'+sprite.types : '';
 
 		// 时间戳
-		var timestamp = opts.useTimestamp ? '-'+opts.timestamp : '';
+		var timestamp = opts.useTimestampSprite ? '-'+opts.timestamp : '';
 
 		// rem
 		var rem = sprite.rem ? '.rem' : '';
@@ -1329,6 +1334,72 @@ function updateNormalRef(images, css, opts) {
 					}
 					
 					
+				})
+			})
+		}
+	}
+
+}
+
+
+/**
+ * 非sprite背景图新文件名
+ *
+ * @param  {Array} images
+ * @param  {Object} css
+ * @param  {Object} opts
+ */
+function setBgImageNewFileName(images, css, opts) {
+	if(opts.noSpriteBgImgNewName && opts.syncResource) {
+		var styleFilePath = css.source.input.file;
+		// 时间戳
+		var timestamp = opts.timestamp ? '-'+opts.timestamp : '-'+kakaTime(opts);
+
+		// 所有非sprite背景图
+		var noSpriteBgImages = lodash.filter(images, function (img) {
+			return img.sprite == false;
+		})
+
+		if(noSpriteBgImages.length > 0) {
+			css.walkDecls(/^background(-image)?$/, function(decl) {
+				var rule = decl.parent;
+				var url = getImageUrl(decl.toString());
+
+				lodash.forEach(noSpriteBgImages, function (image) {
+					if(image.url == url) {
+						// 图片临时保存目录路径
+						var imgTempDirPath = path.join(path.dirname(styleFilePath), opts.tempDir, path.dirname(url));
+						// 创建临时目录
+						if (!fs.existsSync(imgTempDirPath)) {
+							mkdirp.sync(imgTempDirPath);
+						}
+
+						// 新图片名
+						var imgBaseName = path.basename(url);
+						var match = /(?:@(\d)x)?\.[a-z]{3,4}$/gi.exec(imgBaseName);
+						var fixedExtname = match[0];
+						var replaceName = imgBaseName.replace(fixedExtname, '');
+						var newImgBaseName = replaceName + timestamp + fixedExtname;
+						// 新图片临时路径
+						var imgTempPath = path.join(imgTempDirPath, newImgBaseName);
+
+						var imagePath;
+						// 更新图片路径信息，用于压缩
+						if(isUseRetinaImage(url)) {
+							imagePath = image.pathRetina;
+							image.pathRetina = imgTempPath;
+						} else {
+							imagePath = image.path;
+							image.path = imgTempPath;
+						}
+						
+						// 写入临时文件夹
+						fs.writeFileSync(imgTempPath, fs.readFileSync(imagePath));
+
+						// 更新css中的图片文件名
+						decl.value = decl.value.replace(imgBaseName,newImgBaseName);
+
+					}
 				})
 			})
 		}

@@ -11,10 +11,11 @@ var LS = localStorage;
 module.exports = function() {
 	// LS.clear()
 	LS.removeItem('lastFiles');
+	console.log(LS)
 
 	var defaultSettings = {
 		// 版本号
-		kakaVersion : '0.2.4',
+		kakaVersion : '0.2.5',
 		// 是否是移动模式
 		mobileModel : true,
 		// 检测css相关性
@@ -33,8 +34,8 @@ module.exports = function() {
 		timestamp : '',
 		// 时间戳是否加上用户名标记
 		timestampAddUserTag : false,
-		// 是否使用时间戳
-		useTimestamp : false,
+		// 是否使用时间戳(Sprite图)
+		useTimestampSprite : true,
 		// 是否使用时间戳(CSS文件)
 		useTimestampCss : false,
 		// 是否文件保存在临时目录(暂时对图片压缩无效)
@@ -42,7 +43,7 @@ module.exports = function() {
 		// 是否替换原文件(图片压缩)
 		replaceOriginal : false,
 		// 是否同步资源
-		syncResource : false,
+		syncResource : true,
 		// 是否转@1x图
 		to1x : false,
 		// 是否使用拖拽处理模式
@@ -52,11 +53,13 @@ module.exports = function() {
 		// FTP配置
 		ftpConfigs : [],
 		// 不压缩JS
-		noMinJS : false,
+		noMinJS : true,
 		// 不混淆JS
-    	noMangleJS : false,
+    	noMangleJS : true,
     	// CSS添加供JS获取的时间戳
-    	jsTimeTag : false
+    	cssForJsTimeTag : false,
+    	// 非Sprite背景图用时间戳文件名
+    	noSpriteBgImgNewName : true
 	};
 	
 	if(!LS.config) {
@@ -67,7 +70,7 @@ module.exports = function() {
 		var config = JSON.parse(LS.getItem('config'));
 
 		// 当前版本号
-		var kakaVersion = '0.2.4';
+		var kakaVersion = '0.2.5';
 
 		if(config.kakaVersion != kakaVersion) {
 			var oldConfigKey = [];
@@ -99,6 +102,7 @@ module.exports = function() {
 			}
 			LS.setItem('config', JSON.stringify(config));
 		}
+
 
 		setUserName(config);
 		setConfig(config);

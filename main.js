@@ -4,6 +4,9 @@ const {app,Menu} = electron;
 // Module to create native browser window.
 const {BrowserWindow} = electron;
 
+var path = require('path');
+var windows = require('./main/windows')
+
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let win;
@@ -66,13 +69,11 @@ if (handleSquirrelEvent()) {
 
 
 
-
-
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
+    // title: "KAKA",
     width: 800,
-    // width: 1200,
     height: 750,
     minWidth: 650,
     minHeight: 750,
@@ -95,23 +96,47 @@ function createWindow() {
   });
 
   // Create the Application's main menu
-    var template = [{
+    var template = [
+      {
         label: "KAKA",
         submenu: [
-            // { label: "About KAKA", selector: "orderFrontStandardAboutPanel:" },
-            // { type: "separator" },
-            { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
-        ]}, {
-        label: "Edit",
-        submenu: [
-            { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+            { 
+              label: "About KAKA", 
+              click: function () { return windows.about.init(); }
+            },
             { type: "separator" },
-            { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-            { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-            { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-            { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
-        ]}
+            {
+              label: '官网',
+              click () { require('electron').shell.openExternal('https://tonytony.club/tool/kaka/') }
+            },
+            { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+        ]
+      },
+      {
+        label: "Dev",
+        submenu: [
+            { 
+              label: "Reload", 
+              accelerator: "CmdOrCtrl+R", 
+              click (item, focusedWindow) {
+                if (focusedWindow) focusedWindow.reload();
+              } 
+            },
+            {
+              label: 'Developer Tools',
+              accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+              click (item, focusedWindow) {
+                if(win.webContents.isDevToolsOpened()) {
+                  win.webContents.closeDevTools();
+                } else {
+                  win.webContents.openDevTools({ detach: true });
+                }
+
+              }
+            }
+        ]
+      }
+      
     ];
 
     Menu.setApplicationMenu(Menu.buildFromTemplate(template));

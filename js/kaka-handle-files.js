@@ -28,11 +28,11 @@ var defaults = {
     timestamp : '',
     useTimestampCss : false,
     saveLocal : true,
-    syncResource : false,
+    syncResource : true,
     to1x : false,
     noMinJS : false,
     noMangleJS : false,
-    jsTimeTag : false,
+    cssForJsTimeTag : false,
     miniCSS: true,
     cssKeepBreaks :false
 };
@@ -191,6 +191,7 @@ function handleCss(files, opts, cb) {
 
                         var newCSS;
                         // 压缩优化CSS
+                        // console.log(result.css)
                         if(opts.miniCSS) {
                             newCSS = new CleanCSS({compatibility:'ie7',keepBreaks:opts.cssKeepBreaks}).minify(result.css).styles;
                         } else {
@@ -201,7 +202,7 @@ function handleCss(files, opts, cb) {
                         var images = result.messages[0].images;
 
                         // CSS文件时间戳注释标记
-                        var timestampTag = creatTimeTag(opts);
+                        var timestampTag = creatTimeTag(opts,opts.cssForJsTimeTag);
 
                         newCSS = newCSS+timestampTag;
 
@@ -527,7 +528,7 @@ function handleHTML(htmlFiles, opts, cb) {
     }, function (err) {
         if(err) {
             log('HTML文件处理出错: '+err.message, 'error');
-            return;
+            cb();
         } else {
             if(cb) {
                 cb(htmlFilesInfo);
@@ -609,7 +610,7 @@ function handleJS(jsFiles, opts, cb) {
     }, function (err) {
         if(err) {
             log('JS文件处理出错: '+err.message, 'error');
-            return;
+            cb();
         } else {
             if(cb) {
                 cb(jsFilesInfo);
@@ -621,28 +622,24 @@ function handleJS(jsFiles, opts, cb) {
 
 
 // 文件时间戳注释标记
-function creatTimeTag(opts) {
-    var tag;
-    var newUserName;
+function creatTimeTag(opts,isCssTimeTag) {
+    var timeTag;
+    var userNameTag;
+    
     if(opts.userName) {
+        // 用户名缩写
         var userName = opts.userName;
-        newUserName = userName.slice(0,2)+userName.slice(-1);
-
-        if(opts.jsTimeTag) {
-            tag = '\n#KAKA{content:"'+kakaTime()+','+newUserName+'"}';
-        } else {
-            tag = '\n/* kaka:'+kakaTime()+','+newUserName+' */';
-        }
-    } else {
-        if(opts.jsTimeTag) {
-            tag = '\n#KAKA{content:"'+kakaTime()+'"}';
-        } else {
-            tag = '\n/* kaka:'+kakaTime()+' */';
-        }
+        var newUserName = userName.slice(0,2)+userName.slice(-1);
+        userNameTag = ','+newUserName;
     }
-    return tag;
 
-    // return opts.userName ? '\n/* kaka:'+kakaTime()+','+opts.userName+' */' : '\n/* kaka:'+kakaTime()+' */';
+    var cssTimeTag = '\n#KAKA{content:"'+opts.timestamp+userNameTag+'"}';
+    var commonTimeTag = '\n/* kaka:'+kakaTime(opts)+userNameTag+' */';
+
+    timeTag = isCssTimeTag ? cssTimeTag+commonTimeTag : commonTimeTag;
+
+    return timeTag;
+
 }
 
 

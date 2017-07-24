@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>KAKA - UI工程师伴侣 (v0.2.4)</title>
+  <title>KAKA - UI工程师伴侣 (v0.2.5)</title>
   <link rel="stylesheet" href="css/style.css">
 <script>
 // 阻止默认事件
@@ -108,7 +108,10 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="replaceOriginal" data-state='false'>替换原文件(图片压缩后)</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="syncResource" data-state='false'>同步资源图片</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="syncResource" data-state='true'>不处理非Sprite背景图</label>
+              </li>
+              <li class="item">
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noSpriteBgImgNewName" data-state='true'>非Sprite背景图不用新文件名</label>
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="checkRelatedCss" data-state='false'>检查CSS关联性</label>
@@ -117,13 +120,13 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="to1x" data-state='false'>@Nx转@1x图</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMinJS" data-state='false'>不压缩JS</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMinJS" data-state='true'>压缩JS</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMangleJS" data-state='false'>不混淆JS</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMangleJS" data-state='true'>混淆JS</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="jsTimeTag" data-state='false'>为CSS添加供JS获取的时间戳</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="cssForJsTimeTag" data-state='false'>供JS使用的CSS时间戳</label>
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useDragDo" data-state='true'>跨目录文件处理</label>
@@ -136,10 +139,10 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
           <div class="mod-inner">
             <ul class="setting-list">
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useTimestamp" data-state='false'>Sprite文件名加时间戳</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useTimestampSprite" data-state='true'>Sprite图文件名不加时间戳</label>
               </li>
               <li class="item">
-                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useTimestampCss" data-state='false'>CSS文件名加时间戳</label>
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useTimestampCss" data-state='false'>CSS新文件名(加时间戳)</label>
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="timestampAddUserTag" data-state='false'>时间戳加用户标记</label>
