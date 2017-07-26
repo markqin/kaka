@@ -72,13 +72,14 @@ if (handleSquirrelEvent()) {
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    // title: "KAKA",
+    title: "KAKA",
     width: 800,
     height: 750,
     minWidth: 650,
     minHeight: 750,
     // alwaysOnTop: true,
-    autoHideMenuBar: true
+    autoHideMenuBar: true,
+    show: false
   });
 
   // and load the index.html of the app.
@@ -95,51 +96,56 @@ function createWindow() {
     win = null;
   });
 
+  win.on('ready-to-show', function() {
+    win.show();
+    win.focus();
+  });
+
   // Create the Application's main menu
-    var template = [
-      {
-        label: "KAKA",
-        submenu: [
-            { 
-              label: "About KAKA", 
-              click: function () { return windows.about.init(); }
-            },
-            { type: "separator" },
-            {
-              label: '官网',
-              click () { require('electron').shell.openExternal('https://tonytony.club/tool/kaka/') }
-            },
-            { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
-        ]
-      },
-      {
-        label: "Dev",
-        submenu: [
-            { 
-              label: "Reload", 
-              accelerator: "CmdOrCtrl+R", 
-              click (item, focusedWindow) {
-                if (focusedWindow) focusedWindow.reload();
-              } 
-            },
-            {
-              label: 'Developer Tools',
-              accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
-              click (item, focusedWindow) {
-                if(win.webContents.isDevToolsOpened()) {
-                  win.webContents.closeDevTools();
-                } else {
-                  win.webContents.openDevTools({ detach: true });
-                }
-
+  var template = [
+    {
+      label: "KAKA",
+      submenu: [
+          { 
+            label: "About KAKA", 
+            click: function () { return windows.about.init(); }
+          },
+          { type: "separator" },
+          {
+            label: '官网',
+            click () { require('electron').shell.openExternal('https://tonytony.club/tool/kaka/') }
+          },
+          { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
+      ]
+    },
+    {
+      label: "Dev",
+      submenu: [
+          { 
+            label: "Reload", 
+            accelerator: "CmdOrCtrl+R", 
+            click (item, focusedWindow) {
+              if (focusedWindow) focusedWindow.reload();
+            } 
+          },
+          {
+            label: 'Developer Tools',
+            accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
+            click (item, focusedWindow) {
+              if(win.webContents.isDevToolsOpened()) {
+                win.webContents.closeDevTools();
+              } else {
+                win.webContents.openDevTools({ detach: true });
               }
-            }
-        ]
-      }
-      
-    ];
 
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+            }
+          }
+      ]
+    }
+    
+  ];
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   
 }
 

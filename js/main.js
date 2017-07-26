@@ -29,6 +29,7 @@ var kakaSprite = require('./js/kaka-css-sprite');
 var kakaFilePre = require('./js/kaka-files-preprocess');
 var kakaCSS = require('./js/kaka-handle-css');
 var kakaImgMin = require('./js/kaka-image-minify');
+var kakaHandleRecord = require('./js/kaka-handle-record');
 
 var kakaSet = require('./js/set.js');
 var dragDrop = require('./js/drag-drop.js');
@@ -58,6 +59,7 @@ $(document).ready(function () {
 	
 	// 设置初始化
 	kakaSet();
+	kakaHandleRecord.init();
 
 	// 版本检查
 	$("#j_kaka_update").on("click",function(){
@@ -94,13 +96,13 @@ $(document).ready(function () {
 		var config = JSON.parse(LS.getItem('config'));
 		var filesPath = handleReadyFiles(files);
 		readyFilesPath.push.apply(readyFilesPath, filesPath);
-		$('#js_execBtn').text('开始处理');
+		$('#js_execBtn').text('开始处理').attr('date-islast','');
 
 		// 拖拽处理模式
 		if(config.useDragDo) {
-			handFiles(filesPath, function (err) {
+			handFiles(filesPath, false, function (err) {
 				$('#js_dropMask').addClass('none');
-				$('#js_execBtn').text('重新处理');
+				$('#js_execBtn').text('重新处理').attr('date-islast','islast');
 			});
 		}
 	})
@@ -122,10 +124,16 @@ $(document).ready(function () {
 				}
 			}
 			if(_filesPath) {
-				$this.text('处理中...')
-				handFiles(_filesPath, function (err) {
+				$this.text('处理中...');
+				var lastStatus;
+				if($this.attr('date-islast')=='islast') {
+					lastStatus = true;
+				} else {
+					lastStatus = false;
+				}
+				handFiles(_filesPath, lastStatus, function (err) {
 					$('#js_dropMask').addClass('none');
-					$('#js_execBtn').text('重新处理');
+					$('#js_execBtn').text('重新处理').attr('date-islast','islast');
 				});
 			}
 			
@@ -176,11 +184,11 @@ function handWindowFiles() {
 			if(config.useDragDo) {
 				var filesPath = handleReadyFiles(readyWinFilesInfo);
 				// 执行处理文件
-				handFiles(filesPath, function (err) {
+				handFiles(filesPath, false, function (err) {
 					$('#js_dropMask').addClass('none');
 				});
 			} else {
-				$('#js_execBtn').text('开始处理');
+				$('#js_execBtn').text('开始处理').attr('date-islast','');
 				var filesPath = handleReadyFiles(readyWinFilesInfo);
 				// 更新待处理文件路径列表
 				readyFilesPath.push.apply(readyFilesPath, filesPath);
@@ -288,8 +296,8 @@ function handLastFiles() {
 		// 处理文件
 		var lastFilesPath = lastFiles.paths;
 		if(lastFilesPath.length > 0) {
-			handFiles(lastFilesPath, function (err) {
-				$('#js_execBtn').text('重新处理');
+			handFiles(lastFilesPath, true, function (err) {
+				$('#js_execBtn').text('重新处理').attr('date-islast','islast');
 				$('#js_dropMask').addClass('none');
 				
 				// 重新绑定F5事件
@@ -306,7 +314,7 @@ function handLastFiles() {
 
 
 // 处理文件
-function handFiles(files, cb) {
+function handFiles(files, isLast, cb) {
 	var start = +new Date();
 
 	// 清空待处理文件数组
@@ -345,6 +353,11 @@ function handFiles(files, cb) {
 		var end =  +new Date();
 		log('共耗时: '+ (end - start)/1000+'s', 'info');
 
+		// 存储操作记录
+		if(!isLast) {
+			kakaHandleRecord.add(files, config);
+		}
+		
 		if(err) {
 			if(cb) {
 				cb(err);
