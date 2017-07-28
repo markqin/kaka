@@ -126,12 +126,16 @@ function createWindow() {
       label: "视图",
       submenu: [
         {
-          label: '固定悬浮',
+          label: '窗口置顶',
           type: 'checkbox',
           click: function (menuItem, browserWindow, event) {
-            console.log(menuItem)
-            console.log(browserWindow)
-            console.log(event)
+            if(!win.isAlwaysOnTop()) {
+              browserWindow.setAlwaysOnTop(true);
+              menuItem.checked = true;
+            } else {
+              browserWindow.setAlwaysOnTop(false);
+              menuItem.checked = false;
+            }
           }
         },
         {

@@ -15,6 +15,7 @@ var kakaTime = require('./kaka-timestamp');
 var log = require('./log');
 var mkdirp = require('mkdirp');
 var UglifyJS = require("uglify-js");
+var autoprefixer = require('autoprefixer');
 
 
 /**
@@ -173,7 +174,7 @@ function handleCss(files, opts, cb) {
             }
 
             // CSS文件各种处理
-            postcss([ kakaCSS(opts) ])
+            postcss(postcssList(opts))
                 .process(css, {
                     from: cssPath
                 })
@@ -205,6 +206,8 @@ function handleCss(files, opts, cb) {
                         var timestampTag = creatTimeTag(opts,opts.cssForJsTimeTag);
 
                         newCSS = newCSS+timestampTag;
+
+                        console.log(newCSS)
 
                         cssFilesInfo.push({
                             savePath : savePath,
@@ -271,6 +274,30 @@ function handleCss(files, opts, cb) {
         
     })
 }
+
+
+// 自动添加前缀
+function addPrefixer(opts) {
+    var browsersConfig = ["last 2 version"];
+    if(opts.mobileModel) {
+        browsersConfig = ["iOS >= 8", "Android >= 4.0", "Chrome >= 37"];
+    } else {
+        browsersConfig = ["Chrome >= 30", "ie >= 7", "Safari >= 7", "ff >= 30"];
+    }
+    return autoprefixer({browsers:browsersConfig});
+}
+
+
+
+// 通过PostCSS处理的方法数组
+function postcssList(opts) {
+    var arr = [kakaCSS(opts)];
+    if(opts.useAutoprefixer) {
+        arr.push(addPrefixer(opts));
+    }
+    return arr;
+}
+
 
 
 /**
@@ -364,54 +391,6 @@ function minCssImages(images, opts, cb) {
             }
         }
     })
-
-    // 图片压缩处理
-    /*if(os.platform() != 'darwin') {
-        // 图片压缩
-        kakaImgMin(images, opts, function (err, minDoneImagesInfo) {
-            if(err) {
-                if(cb) {
-                    cb(err)
-                }
-            } else {
-                if(cb) {
-                    cb(null, minDoneImagesInfo);
-                }
-            }
-        })
-    } else {
-        // 如果OSX下文件过多
-        var filesSize = 0;
-        images.forEach(function (item) {
-            if(typeof item === 'string') {
-                filesSize += fs.readFileSync(item).length
-            } else if (typeof item === 'object') {
-                filesSize += item.buffer.length
-            }
-        })
-
-        // if(images.length > 100) {
-        if(Math.floor(filesSize/1000)> 1024) {
-            log('OSX系统限制，压缩图片过多！', 'error');
-            if(cb) {
-                cb(images);
-            }
-        } else {
-            // 图片压缩
-            kakaImgMin(images, opts, function (err, minDoneImagesInfo) {
-                if(err) {
-                    if(cb) {
-                        cb(err);
-                    }
-                } else {
-                    if(cb) {
-                        cb(null, minDoneImagesInfo);
-                    }
-                }
-
-            })
-        }
-    }*/
 }
 
 

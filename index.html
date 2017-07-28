@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>KAKA - UI工程师伴侣 (v0.2.5)</title>
+  <title>KAKA - UI工程师伴侣 (v0.2.6)</title>
   <link rel="stylesheet" href="css/style.css">
 <script>
 // 阻止默认事件
@@ -147,6 +147,9 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="replaceOriginal" data-state='false'>替换原文件(图片压缩后)</label>
               </li>
               <li class="item">
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="useAutoprefixer" data-state='true'>关闭自动前缀功能</label>
+              </li>
+              <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="syncResource" data-state='true'>不处理非Sprite背景图</label>
               </li>
               <li class="item">
@@ -163,6 +166,9 @@ window.addEventListener("drop", function(e){e.preventDefault();}, false);
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="noMangleJS" data-state='true'>混淆JS</label>
+              </li>
+              <li class="item">
+                <label class="inner"><input type="checkbox" tabindex="-1" data-tag="miniCSS" data-state='true'>关闭CSS压缩</label>
               </li>
               <li class="item">
                 <label class="inner"><input type="checkbox" tabindex="-1" data-tag="cssForJsTimeTag" data-state='false'>供JS使用的CSS时间戳</label>

@@ -392,7 +392,7 @@ function setTokens(images, css) {
 			lodash.forEach(allImages, function (image) {
 				// 删除原有的背景图属性
 				rule.walkDecls(/^background-(repeat|size|position)$/, function(decl) {
-					decl.removeSelf();
+					decl.remove();
 				});
 
 				// 记录token
