@@ -6,6 +6,7 @@ const {BrowserWindow} = electron;
 
 var path = require('path');
 var windows = require('./main/windows')
+var shell = electron.shell;
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
@@ -72,13 +73,14 @@ if (handleSquirrelEvent()) {
 function createWindow() {
   // Create the browser window.
   win = new BrowserWindow({
-    // title: "KAKA",
+    title: "KAKA",
     width: 800,
     height: 750,
     minWidth: 650,
     minHeight: 750,
-    // alwaysOnTop: true,
-    autoHideMenuBar: true
+    autoHideMenuBar: true,
+    show: false,
+    resizable: false
   });
 
   // and load the index.html of the app.
@@ -96,42 +98,57 @@ function createWindow() {
   });
 
   // Create the Application's main menu
-    var template = [
-      {
-        label: "KAKA",
-        submenu: [
-            { 
-              label: "About KAKA", 
-              click: function () { return windows.about.init(); }
-            },
-            { type: "separator" },
-            { label: "Quit", accelerator: "Command+Q", click: function() { app.quit(); }}
-        ]
-      },
-      {
-        label: "Edit",
-        submenu: [
-            { label: "Undo", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
-            { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
-            { type: "separator" },
-            { label: "Cut", accelerator: "CmdOrCtrl+X", selector: "cut:" },
-            { label: "Copy", accelerator: "CmdOrCtrl+C", selector: "copy:" },
-            { label: "Paste", accelerator: "CmdOrCtrl+V", selector: "paste:" },
-            { label: "Select All", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
-        ]
-      },
-      {
-        label: "Dev",
-        submenu: [
-            { 
-              label: "Reload", 
-              accelerator: "CmdOrCtrl+R", 
+  var template = [
+    {
+      label: "KAKA",
+      submenu: [
+          { 
+            label: "关于KAKA", 
+            click: function () { return windows.about.init(); }
+          },
+          { type: "separator" },
+          { label: "退出KAKA", accelerator: "Command+Q", click: function() { app.quit(); }}
+      ]
+    },
+    {
+      label: "修改",
+      submenu: [
+          { label: "撤销", accelerator: "CmdOrCtrl+Z", selector: "undo:" },
+          { label: "重做", accelerator: "Shift+CmdOrCtrl+Z", selector: "redo:" },
+          { type: "separator" },
+          { label: "剪切", accelerator: "CmdOrCtrl+X", selector: "cut:" },
+          { label: "复制", accelerator: "CmdOrCtrl+C", selector: "copy:" },
+          { label: "粘贴", accelerator: "CmdOrCtrl+V", selector: "paste:" },
+          { label: "全选", accelerator: "CmdOrCtrl+A", selector: "selectAll:" }
+      ]
+    },
+    {
+      label: "视图",
+      submenu: [
+        {
+          label: '固定悬浮',
+          type: 'checkbox',
+          click: function (menuItem, browserWindow, event) {
+            console.log(menuItem)
+            console.log(browserWindow)
+            console.log(event)
+          }
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: '开发者',
+          submenu: [
+            {
+              label: "刷新", 
+              accelerator: process.platform === 'darwin' ? 'Alt+Command+R' : 'Ctrl+Shift+R',
               click (item, focusedWindow) {
                 if (focusedWindow) focusedWindow.reload();
               } 
             },
             {
-              label: 'Developer Tools',
+              label: '开发者工具',
               accelerator: process.platform === 'darwin' ? 'Alt+Command+I' : 'Ctrl+Shift+I',
               click (item, focusedWindow) {
                 if(win.webContents.isDevToolsOpened()) {
@@ -139,15 +156,47 @@ function createWindow() {
                 } else {
                   win.webContents.openDevTools({ detach: true });
                 }
-
               }
             }
-        ]
-      }
-      
-    ];
+          ]
+        }
+      ]
+    },
+    {
+      label: "帮助",
+      submenu: [
+        {
+          label: '官网',
+          click: function () {
+            shell.openExternal('https://kaka.tonytony.club/')
+          }
+        },
+        {
+          label: 'GitHub仓库',
+          click: function () {
+            shell.openExternal('https://github.com/markqin/kaka')
+          }
+        },
+        {
+          type: 'separator'
+        },
+        {
+          label: '问题反馈',
+          click: function () {
+            shell.openExternal('https://github.com/markqin/kaka/issues')
+          }
+        }
+      ]
+    }
+  ]
 
-    Menu.setApplicationMenu(Menu.buildFromTemplate(template));
+  win.on('ready-to-show', function() {
+    win.show();
+    win.focus();
+  });
+
+
+  Menu.setApplicationMenu(Menu.buildFromTemplate(template));
   
 }
 
@@ -173,5 +222,20 @@ app.on('activate', () => {
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+
+
+/*function onToggleAlwaysOnTop (flag) {
+  getMenuItem('Float on Top').checked = flag
+}
+
+function toggleAlwaysOnTop (flag) {
+  if (!main.win) { return }
+  if (flag == null) {
+    flag = !main.win.isAlwaysOnTop()
+  }
+  log(("toggleAlwaysOnTop " + flag))
+  main.win.setAlwaysOnTop(flag)
+  menu.onToggleAlwaysOnTop(flag)
+}*/
+
+

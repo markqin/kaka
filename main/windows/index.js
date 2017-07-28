@@ -1,2 +1,3 @@
-exports.about = require('./about')
+exports.about = require('./about');
+exports.main = require('./main');
 
