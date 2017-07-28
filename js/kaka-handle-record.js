@@ -74,6 +74,7 @@ function addDom(item,isCurrent) {
 }
 
 
+
 // 删除操作记录DOM
 function removeDom() {
 	$handleRecordsList.on('click', '.item .btn-remove', function() {
@@ -90,6 +91,26 @@ function removeDom() {
 
 
 
+// 运行操作记录
+function run() {
+	$handleRecordsList.on('click', '.item .btn-run', function() {
+		var $item = $(this).parents('.item');
+		var id = $item.attr('data-id');
+		var recordsList = getLS();
+		
+		// 更新操作记录和文件
+		var config = JSON.parse(LS.getItem('config'));
+		lodash.forEach(recordsList, function(item) {
+			if(item.id == id) {
+				item.opts = config;
+				// item.files = newFiles;
+			}
+		})
+
+
+		setLS(recordsList);
+	})
+}
 
 
 
