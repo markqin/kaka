@@ -29,7 +29,7 @@ var kakaSprite = require('./js/kaka-css-sprite');
 var kakaFilePre = require('./js/kaka-files-preprocess');
 var kakaCSS = require('./js/kaka-handle-css');
 var kakaImgMin = require('./js/kaka-image-minify');
-var kakaHandleRecord = require('./js/kaka-handle-record');
+// var kakaHandleRecord = require('./js/kaka-handle-record');
 
 var kakaSet = require('./js/set.js');
 var dragDrop = require('./js/drag-drop.js');
@@ -59,12 +59,12 @@ $(document).ready(function () {
 	
 	// 设置初始化
 	kakaSet();
-	kakaHandleRecord.init();
+	// kakaHandleRecord.init();
 
 	// 版本检查
 	$("#j_kaka_update").on("click",function(){
 		//检查更新
-		var cur = "0.2.6";
+		var cur = "0.2.7";
 		if(kakaParams.version!=cur){
 			alert("版本有更新，将退出程序并下载新版本！");
 			if (process.platform != 'darwin') {//windows
@@ -354,9 +354,9 @@ function handFiles(files, isLast, cb) {
 		log('共耗时: '+ (end - start)/1000+'s', 'info');
 
 		// 存储操作记录
-		if(!isLast) {
-			kakaHandleRecord.add(files, config);
-		}
+		// if(!isLast) {
+		// 	kakaHandleRecord.add(files, config);
+		// }
 		
 		if(err) {
 			if(cb) {

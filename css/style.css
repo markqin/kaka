@@ -677,7 +677,7 @@ textarea {
 .settings-wrap input[type="checkbox"] {
   width: 16px;
   height: 16px;
-  vertical-align: middle;
+  vertical-align: -2px;
   margin-right: 3px;
   cursor: pointer;
 }

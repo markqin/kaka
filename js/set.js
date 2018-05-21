@@ -11,11 +11,10 @@ var LS = localStorage;
 module.exports = function() {
 	// LS.clear()
 	LS.removeItem('lastFiles');
-	console.log(LS)
 
 	var defaultSettings = {
 		// 版本号
-		kakaVersion : '0.2.6',
+		kakaVersion : '0.2.9',
 		// 是否是移动模式
 		mobileModel : true,
 		// 检测css相关性
@@ -55,15 +54,17 @@ module.exports = function() {
 		// 不压缩JS
 		noMinJS : true,
 		// 不混淆JS
-    	noMangleJS : true,
-    	// CSS添加供JS获取的时间戳
-    	cssForJsTimeTag : false,
-    	// 非Sprite背景图用时间戳文件名
-    	noSpriteBgImgNewName : true,
-    	// 使用autoprefixer
-    	useAutoprefixer : true,
-    	// 压缩css
-    	miniCSS : true
+		noMangleJS : true,
+		// ES6+文件
+		isES6 : false,
+		// CSS添加供JS获取的时间戳
+		cssForJsTimeTag : false,
+		// 非Sprite背景图用时间戳文件名
+		noSpriteBgImgNewName : true,
+		// 使用autoprefixer
+		useAutoprefixer : true,
+		// 压缩css
+		miniCSS : true
 	};
 	
 	if(!LS.config) {
@@ -74,7 +75,7 @@ module.exports = function() {
 		var config = JSON.parse(LS.getItem('config'));
 
 		// 当前版本号
-		var kakaVersion = '0.2.6';
+		var kakaVersion = '0.2.9';
 
 		if(config.kakaVersion != kakaVersion) {
 			var oldConfigKey = [];

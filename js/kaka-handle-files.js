@@ -15,6 +15,7 @@ var kakaTime = require('./kaka-timestamp');
 var log = require('./log');
 var mkdirp = require('mkdirp');
 var UglifyJS = require("uglify-js");
+var UglifyES = require("uglify-es");
 var autoprefixer = require('autoprefixer');
 
 
@@ -60,14 +61,18 @@ module.exports = function(files, opts, callback) {
                 js : [],
                 whiteList: [],
                 ignore : []*/
-                if(filesGroups.ignore.length>0) {
-                    log('不支持以下格式的文件: ', 'warning')
-                    filesGroups.ignore.forEach(function (file) {
-                        log(file, 'log')
-                    })
-                    log('===== end =====', 'warning')
+                try {
+                    if(filesGroups.ignore.length>0) {
+                        log('不支持以下格式的文件: ', 'warning')
+                        filesGroups.ignore.forEach(function (file) {
+                            log(file, 'log')
+                        })
+                        log('===== end =====', 'warning')
+                    }
+                    cb(err, filesGroups);
+                } catch (error) {
+                    cb(error, filesGroups);
                 }
-                cb(err, filesGroups);
             });
         },
         // 各种文件处理
@@ -194,7 +199,7 @@ function handleCss(files, opts, cb) {
                         // 压缩优化CSS
                         // console.log(result.css)
                         if(opts.miniCSS) {
-                            newCSS = new CleanCSS({compatibility:'ie7',keepBreaks:opts.cssKeepBreaks}).minify(result.css).styles;
+                            newCSS = new CleanCSS({compatibility:'ie7',keepBreaks:opts.cssKeepBreaks,rebase: false}).minify(result.css).styles;
                         } else {
                             newCSS = result.css;
                         }
@@ -207,7 +212,7 @@ function handleCss(files, opts, cb) {
 
                         newCSS = newCSS+timestampTag;
 
-                        console.log(newCSS)
+                        // console.log(newCSS)
 
                         cssFilesInfo.push({
                             savePath : savePath,
@@ -546,14 +551,26 @@ function handleJS(jsFiles, opts, cb) {
 
                     // 压缩js 
                     if(!opts.noMinJS) {
-                        var minJsResult = UglifyJS.minify(jsContent, {
-                            fromString: true,
-                            // 是否混淆
-                            mangle: opts.noMangleJS ? false : true
-                        });
+                        var minResult
+                        // 默认ES5
+                        if (!opts.isES6) {
+                            minResult = UglifyJS.minify(jsContent, {
+                                // 是否混淆
+                                mangle: opts.noMangleJS ? false : true
+                            });
+                        } else {
+                            minResult = UglifyES.minify(jsContent, {
+                                // 是否混淆
+                                mangle: opts.noMangleJS ? false : true
+                            })
+                        }
 
-                        jsContent = minJsResult.code+creatTimeTag(opts);
-                        jsBuf = new Buffer(jsContent);
+                        if (minResult.error) {
+                            throw minResult.error
+                        } else {
+                            jsContent = minResult.code+creatTimeTag(opts);
+                            jsBuf = new Buffer(jsContent);
+                        }
                     }
                     
                     // js文件信息
@@ -588,7 +605,17 @@ function handleJS(jsFiles, opts, cb) {
         })
     }, function (err) {
         if(err) {
-            log('JS文件处理出错: '+err.message, 'error');
+            log('JS文件处理出错!', 'error');
+            if (err.message) {
+                log('message: '+err.message, 'error')
+            }
+            if (err.col && err.line) {
+                log('line: '+err.line, 'error')
+                log('col: '+err.col, 'error')
+            }
+            if (err.filename) {
+                log('filename: '+err.filename, 'error')
+            }
             cb();
         } else {
             if(cb) {

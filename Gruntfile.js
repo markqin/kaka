@@ -5,10 +5,10 @@ grunt.config.init({
 	pkg: grunt.file.readJSON("package.json"),
 	'create-windows-installer':{
 		x64:{
-		version:'0.2.2',//版本号
+		version:'0.2.7',//版本号
 		authors:'markqin,kiddhe,mollyywang',//作者
 		projectUrl:'https://tonytony.club/tool/kaka/',//项目官网
-		appDirectory:'/kakav0.2.2',//必填，真正要打包的项目目录
+		appDirectory:'/kakav0.2.7',//必填，真正要打包的项目目录
 		outputDirectory: '/kaka-installer64',//必填，相当于Release，打包之后的存放目录
 		releaseNotes:'KAKA--UI开发利器',//工具描述
 		exe:'kaka.exe',//如果你没有改exe名字，此处应该是electron.exe

@@ -80,7 +80,7 @@ function createWindow() {
     minHeight: 750,
     autoHideMenuBar: true,
     show: false,
-    resizable: false
+    resizable: true
   });
 
   // and load the index.html of the app.

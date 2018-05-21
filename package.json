@@ -1,11 +1,12 @@
 {
   "name": "KAKA",
-  "version": "0.2.5",
+  "productName": "KAKA",
+  "version": "0.2.9",
   "main": "main.js",
   "dependencies": {
     "async": "^1.5.0",
     "autoprefixer": "^7.1.2",
-    "clean-css": "^3.4.8",
+    "clean-css": "^4.1.9",
     "drag-drop": "^2.13.2",
     "ftp": "^0.3.10",
     "gulp": "^3.9.0",
@@ -22,11 +23,10 @@
     "qrcode-npm": "0.0.3",
     "sharp": "^0.18.2",
     "spritesmith": "^3.0.0",
-    "uglify-js": "^2.6.2"
+    "uglify-es": "^3.3.9",
+    "uglify-js": "^3.3.21"
   },
   "devDependencies": {
-    "grunt": "^1.0.1",
-    "grunt-electron-installer": "^2.1.0"
   },
   "author": {
     "name": "markqin",

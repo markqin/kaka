@@ -163,6 +163,7 @@ function handleRelatedCss(files, cb) {
 
 		checkTragetFile(checkFiles, dirname, function (err, relatedInfo) {
 			if(err) {
+				console.log(1)
 				callback(err);
 			} else {
 				allRelatedCssInfo.push(relatedInfo);
@@ -233,7 +234,7 @@ function checkTragetFile(files, dirname, cb) {
 	fs.readdir(dirname + '/', function (err, dirFiles){
 		if (err) {
 			log('检测相关性时，读取同目录文件夹出错: '+err.message, 'error');
-			return;
+			cb(err);
 		}
 
 		// 找出css文件，剔除*.import.css文件，因为不支持import嵌套
