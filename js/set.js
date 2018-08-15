@@ -14,7 +14,7 @@ module.exports = function() {
 
 	var defaultSettings = {
 		// 版本号
-		kakaVersion : '0.2.9',
+		kakaVersion : '0.3.0',
 		// 是否是移动模式
 		mobileModel : true,
 		// 检测css相关性
@@ -75,7 +75,7 @@ module.exports = function() {
 		var config = JSON.parse(LS.getItem('config'));
 
 		// 当前版本号
-		var kakaVersion = '0.2.9';
+		var kakaVersion = '0.3.0';
 
 		if(config.kakaVersion != kakaVersion) {
 			var oldConfigKey = [];

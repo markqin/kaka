@@ -112,7 +112,7 @@ function main(opts) {
 	        		updateNormalRef(images, css, options);
 
 	        		// 替换相关background属性为base64
-					updateBase64Ref(images, css, options);
+							updateBase64Ref(images, css, options);
 
 	        		// 生成@1x图对应retina图的media query样式
 	        		updateMediaQuery(images, spritesData, css, options);
@@ -1368,7 +1368,8 @@ function setBgImageNewFileName(images, css, opts) {
 				lodash.forEach(noSpriteBgImages, function (image) {
 					if(image.url == url) {
 						// 图片临时保存目录路径
-						var imgTempDirPath = path.join(path.dirname(styleFilePath), opts.tempDir, path.dirname(url));
+						// var imgTempDirPath = path.join(path.dirname(styleFilePath), opts.tempDir, path.dirname(url));
+						var imgTempDirPath = path.join( path.resolve( path.dirname(styleFilePath), path.dirname(url) ), opts.tempDir);
 						// 创建临时目录
 						if (!fs.existsSync(imgTempDirPath)) {
 							mkdirp.sync(imgTempDirPath);
