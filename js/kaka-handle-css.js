@@ -78,7 +78,7 @@ function main(opts) {
 					// 合并@media
 					combinAtMedia(css);
 
-					cb(null, lodash.flatten(lodash.pluck(spriteResult, 'images')))
+					cb(null, lodash.flatten(lodash.map(spriteResult, 'images')))
 				}
 				
 			], function (err, results) {
@@ -158,7 +158,7 @@ function parseImportRule(css, opts) {
  */
 function checkImportFileExist(files, cb) {
 
-	var importFilesPath = lodash.pluck(files, 'path');
+	var importFilesPath = lodash.map(files, 'path');
 
 	// 找出不存在的文件
 	async.filter(importFilesPath, function (item, callback){

@@ -47,7 +47,7 @@ module.exports = function(files, opts, cb) {
 			} else {
 				if(relatedInfo.length > 0) {
 					// 所有写了@import并引入待处理文件的css文件
-					var relatedPath = lodash.uniq(lodash.flatten(lodash.pluck(relatedInfo, 'relatedFiles')));
+					var relatedPath = lodash.uniq(lodash.flatten(lodash.map(relatedInfo, 'relatedFiles')));
 
 					// 把相关文件放入整体文件信息中待处理
 					allFiles.css.normal = lodash.uniq(allFiles.css.normal.concat(relatedPath));
@@ -158,8 +158,8 @@ function handleRelatedCss(files, cb) {
 	var allRelatedCssInfo = [];
 
 	async.forEachOf(dirGroups, function (value, dirname, callback) {
-
-		var checkFiles = lodash.pluck(value, 'filePath');
+		
+		var checkFiles = lodash.map(value, 'filePath');
 
 		checkTragetFile(checkFiles, dirname, function (err, relatedInfo) {
 			if(err) {

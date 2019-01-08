@@ -262,7 +262,7 @@ function checkImageExist(images, css, cb) {
 
 	// 所有图片的路径
 	var imagesPath = lodash.uniq(lodash.filter(
-		lodash.pluck(images, 'path').concat(lodash.pluck(images, 'pathRetina')), function (img) {
+		lodash.map(images, 'path').concat(lodash.map(images, 'pathRetina')), function (img) {
 			return img != null;
 		}
 	));
@@ -522,7 +522,7 @@ function doNormalSprite(images, isRem, opts, callback) {
 		var results = [];
 
 		async.forEachOf(typeGroups, function (typeGroup, key, callback1){
-			var src = lodash.filter(lodash.pluck(typeGroup, 'path'), function (img) {
+			var src = lodash.filter(lodash.map(typeGroup, 'path'), function (img) {
 				return img != null;
 			});
 
@@ -537,7 +537,7 @@ function doNormalSprite(images, isRem, opts, callback) {
 					callback1(err);
 				} else {
 					// 分组
-					result.types = lodash.pluck(typeGroup, 'typeGroup')[0];
+					result.types = lodash.map(typeGroup, 'typeGroup')[0];
 					result.groups = '';
 					results.push(result);
 					result.rem = isRem;
@@ -597,12 +597,12 @@ function doRetinaSprite(images, isRem, opts, callback) {
 		var ratioResults = [];
 
 		async.forEachOf(ratioGroups, function (group, key, callback2){
-			var src = lodash.filter(lodash.pluck(group, 'pathRetina'), function (img) {
+			var src = lodash.filter(lodash.map(group, 'pathRetina'), function (img) {
 				return img != null;
 			});
 
 			// 按ratio分组
-			var ratioGroupTag = lodash.pluck(group, 'ratio')[0];
+			var ratioGroupTag = lodash.map(group, 'ratio')[0];
 
 			// 设置sprite图中每张图之间的padding
 			var padding = 0;
@@ -623,7 +623,7 @@ function doRetinaSprite(images, isRem, opts, callback) {
 					callback2(err);
 				} else {
 					// 分组
-					result.types = lodash.pluck(typeGroup, 'typeGroup')[0];
+					result.types = lodash.map(typeGroup, 'typeGroup')[0];
 					result.groups = '@'+ratioGroupTag.toString()+'x';
 					ratioResults.push(result);
 					result.rem = isRem;
@@ -1076,8 +1076,8 @@ function getNoSpriteImagesPath(images) {
 	var allImages = lodash.filter(images, function (img) {
 		return img.sprite == false && img.base64 == false;
 	});
-	var normalImages = lodash.pluck(allImages, 'path')
-	var retinaImages = lodash.pluck(allImages, 'pathRetina');
+	var normalImages = lodash.map(allImages, 'path')
+	var retinaImages = lodash.map(allImages, 'pathRetina');
 
 	var arr = lodash.filter(normalImages.concat(retinaImages), function (img) {
 		return img != null;
