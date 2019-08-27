@@ -1,6 +1,10 @@
 # kaka
 UI工程师伴侣-UI开发构建工具
 
+### v0.3.2 更新：
+* UPDATE: 图片压缩依赖与机制更新
+  FIX: 若干小BUG修复
+
 ### v0.3.1 更新：
 * UPDATE: autoprefixer升级至v9.4.4，解决mask-image等处理bug
 * UPDATE: lodash升级至v4.17.11，解决安全漏洞警报
