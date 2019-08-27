@@ -91,6 +91,7 @@ module.exports = function (fileArr, cb) {
 
 					if(ftpCurrent.host) {
 						needle.post(ftpCurrent.host, data, { multipart: true }, function(err, resp, body) {
+							// console.log(body)
 							if(err) {
 								log('上传服务器端出错: '+err.message, 'error')
 								if(cb) {

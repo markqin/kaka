@@ -92,6 +92,15 @@ module.exports = function(files, opts, callback) {
                     // 图片处理
                     if(filesGroups.img.original.length > 0 || filesGroups.img.worked.length > 0) {
                         handleImages(filesGroups.img, options, function (err, imagesAllInfo) {
+                            // 保存临时目录
+                            if (opts.saveLocal) {
+                                imagesAllInfo.forEach((item) => {
+                                    if (!fs.existsSync(path.dirname(item.savePath))) {
+                                        mkdirp.sync(path.dirname(item.savePath))
+                                    }
+                                    fs.writeFileSync(item.savePath, item.buffer)
+                                })
+                            }
                             callback1(err, imagesAllInfo)
                         })
                     } else {
@@ -251,6 +260,7 @@ function handleCss(files, opts, cb) {
         
     }, function (err) {
         if(err) {
+            console.log(err)
             if(err.name == 'CssSyntaxError') {
                 log('CSS语法错误: '+err.message+' ', 'error');
             } else {
@@ -352,6 +362,7 @@ function handleCssImages(images, opts, cb) {
     // 压缩CSS中的图片
     if(opts.doImageMinfy && readeyMinImages.length > 0) {
         log('正在压缩css中的图片...', 'log');
+        // console.log(readeyMinImages)
         minCssImages(readeyMinImages, opts, function(err, minDoneImagesInfo) {
             if(err) {
                 if(cb) {
@@ -360,6 +371,17 @@ function handleCssImages(images, opts, cb) {
             } else {
                 if(cb) {
                     log('css中的图片压缩成功!', 'log');
+                    // console.log(minDoneImagesInfo)
+                    // 保存临时目录
+                    if (opts.saveLocal) {
+                        minDoneImagesInfo.forEach((item) => {
+                            if (!fs.existsSync(path.dirname(item.savePath))) {
+                                mkdirp.sync(path.dirname(item.savePath))
+                            }
+                            fs.writeFileSync(item.savePath, item.buffer)
+                        })
+                    }
+
                     var doneImagesInfo = minDoneImagesInfo.concat(othersImages);
                     cb(null, doneImagesInfo);
                 }

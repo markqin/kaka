@@ -942,6 +942,9 @@ textarea {
 .detail-panel p {
   line-height: 1.5;
 }
+.detail-panel a:hover {
+  color: #3c96e0;
+}
 .detail-panel .btn-close {
   position: absolute;
   top: 10px;

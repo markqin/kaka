@@ -703,17 +703,21 @@ function saveSprites(css, images, opts, sprites, cb) {
 
 		spriteImagesInfo.push(spriteInfo);
 
+		// console.log(sprite)
+
 		// 写入sprite图
-		if(opts.saveLocal) {
-			fs.writeFile(sprite.path, sprite.image, function (err) {
-				if (err) {
-					callback(err);
-				}
-				callback();
-			});
-		} else {
-			callback();
-		}
+		// if(opts.saveLocal) {
+		// 	fs.writeFile(sprite.path, sprite.image, function (err) {
+		// 		if (err) {
+		// 			callback(err);
+		// 		}
+		// 		callback();
+		// 	});
+		// } else {
+		// 	callback();
+		// }
+
+		callback();
 		
 	}, function (err) {
 		if(err) {

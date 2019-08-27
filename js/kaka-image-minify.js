@@ -6,9 +6,12 @@ var async = require('async');
 var lodash = require('lodash');
 var gulp = require('gulp');
 var gulpRename = require("gulp-rename");
-var Imagemin = require('imagemin');
-var imageminPngquant = require('imagemin-pngquant');
-// var imageminWebp = require('imagemin-webp');
+const imagemin = require('imagemin');
+const imageminJpegtran = require('imagemin-jpegtran');
+const imageminGifsicle = require('imagemin-gifsicle');
+const imageminPngquant = require('imagemin-pngquant');
+const imageminWebp = require('imagemin-webp');
+const imageminSvgo = require('imagemin-svgo');
 var log = require('./log');
 
 
@@ -90,6 +93,7 @@ module.exports = function (files, opts, cb) {
 				})
 
 				if(cb) {
+					// console.log(doneImagesInfo)
 					// 返回压缩完的图片的信息
 					cb(null, doneImagesInfo);
 				}
@@ -115,44 +119,90 @@ module.exports = function (files, opts, cb) {
  * @return async
  */
 function runImagemin(filePath, buf, opts, cb) {
-	var optimizedDir = !opts.replaceOriginal ? opts.optimizedDir : '';
- 
-	new Imagemin()
-		.src(buf)
-		.use(gulpRename(path.basename(filePath)))
-		.dest(path.join(path.dirname(filePath), optimizedDir))
-		// .use(Imagemin.optipng({optimizationLevel: 1}))
-		.use(imageminPngquant({quality: '90', speed: 1}))
-		.use(Imagemin.jpegtran({progressive: true}))
-		// .use(imageminWebp({quality: 75}))
-		.use(Imagemin.svgo())
-		.use(Imagemin.gifsicle({interlaced: true}))
-		.run(function (err, data) {
-			if(err) {
+	let optimizedDir = !opts.replaceOriginal ? opts.optimizedDir : '';
+
+	let quality_png = [0.6, 0.8];
+	// let quality_webp = '80';
+
+	(async () => {
+		const files = await imagemin.buffer(buf, {
+			use: [
+				imageminJpegtran(),
+				imageminPngquant({
+					strip: true,
+					quality: quality_png
+				}),
+				imageminGifsicle(),
+				// imageminWebp({quality: quality_webp}),
+				imageminSvgo({
+					plugins: [
+						{removeViewBox: false}
+					]
+				})
+			]
+		})
+		.then((files) => {
+			try {
+				let imageInfo = { 
+					path : filePath, 
+					savePath : path.join(path.dirname(filePath), optimizedDir, path.basename(filePath)).split(path.sep).join('/'),
+					orig : buf.length, 
+					dest : files.length,
+					buffer : files
+				}
+				console.log(imageInfo);
+				if(cb) {
+					cb(null, imageInfo)
+				}
+			} catch (err) {
 				if(cb) {
 					cb(err)
 				}
-			} else {
-				try {
-					var imageInfo = { 
-						path : filePath, 
-						savePath : path.join(path.dirname(filePath), optimizedDir, path.basename(filePath)).split(path.sep).join('/'),
-						orig : buf.length, 
-						dest : data[0].contents.length,
-						buffer : data[0].contents
-					}
-					if(cb) {
-						cb(null, imageInfo)
-					}
-				} catch (err) {
-					if(cb) {
-						cb(err)
-					}
-				}
 			}
+		})
+		.catch((err) => {
+			console.log(err);
+			if(cb) {
+				cb(err)
+			}
+		})
+		
+	})();
+ 
+	// new Imagemin()
+	// 	.src(buf)
+	// 	.use(gulpRename(path.basename(filePath)))
+	// 	.dest(path.join(path.dirname(filePath), optimizedDir))
+	// 	.use(imageminPngquant({quality: '90', speed: 1}))
+	// 	.use(Imagemin.jpegtran({progressive: true}))
+	// 	.use(Imagemin.svgo())
+	// 	.use(Imagemin.gifsicle({interlaced: true}))
+	// 	.run(function (err, data) {
+	// 		if(err) {
+	// 			if(cb) {
+	// 				cb(err)
+	// 			}
+	// 		} else {
+	// 			try {
+	// 				var imageInfo = { 
+	// 					path : filePath, 
+	// 					savePath : path.join(path.dirname(filePath), optimizedDir, path.basename(filePath)).split(path.sep).join('/'),
+	// 					orig : buf.length, 
+	// 					dest : data[0].contents.length,
+	// 					buffer : data[0].contents
+	// 				}
+	// 				if(cb) {
+	// 					cb(null, imageInfo)
+	// 				}
+	// 			} catch (err) {
+	// 				if(cb) {
+	// 					cb(err)
+	// 				}
+	// 			}
+	// 		}
 			
 			
-		});
+	// 	});
 }
 
 

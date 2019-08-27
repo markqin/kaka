@@ -21,6 +21,7 @@ var mkdirp = require('mkdirp');
 var ftp = require('ftp');
 var mime = require('mime');
 var qrCode = require('qrcode-npm');
+var walk = require('walk');
 
 var kakaFiles = require('./js/kaka-handle-files');
 var kakaRmdir = require('./js/kaka-rmdir');
@@ -84,7 +85,7 @@ $(document).ready(function () {
 	})
 
 	// 所有a链接在系统浏览器打开
-	$('#js_showLogArea').on('click', 'a', function(e) {
+	$('#js_dropZone').on('click', 'a', function(e) {
 		e.preventDefault();
 		var url = $(this).attr('href');
 		shell.openExternal(url);
@@ -93,6 +94,7 @@ $(document).ready(function () {
 	
 	// 拖拽文件
 	dragDrop(function (files) {
+		// console.log(files)
 		var config = JSON.parse(LS.getItem('config'));
 		var filesPath = handleReadyFiles(files);
 		readyFilesPath.push.apply(readyFilesPath, filesPath);
@@ -358,6 +360,7 @@ function handFiles(files, isLast, cb) {
 		// 	kakaHandleRecord.add(files, config);
 		// }
 		
+		
 		if(err) {
 			if(cb) {
 				cb(err);
@@ -399,6 +402,28 @@ function handFiles(files, isLast, cb) {
 	})
 }
 
+// 清除临时文件夹
+// function removeAllTempDir (files, config) {
+// 	files.forEach((filePath) => {
+// 		let dirs = []
+// 		let dirPath =  path.dirname(filePath)
+// 		var walker  = walk.walk(dirPath, { followLinks: false });
+	
+// 		walker.on('directory', function(root, stat, next) {
+// 			if (stat.name === config.tempDir || stat.name === config.optimizedDir) {
+// 				console.log(root + path.sep + stat.name)
+// 				dirs.push(root + path.sep + stat.name);
+// 			}
+// 			next();
+// 		})
+	
+// 		walker.on('end', function() {
+// 			console.log(dirs);
+// 		})
+// 	})
+// }
+
+
 
 
 // 显示提单详细数据
@@ -413,7 +438,7 @@ function showDetail(box, ftpResults) {
     var webHtml = '<h3>文件地址</h3>';
     var webSummaryHtml = '';
     ftpResults.web.forEach(function (item) {
-		webHtml += '<p>'+item+'</p>';
+		webHtml += '<p><a target="_blank" href="' + item + '">' + item + '</a></p>';
 		// HTML文件地址
 		if(/\.html/.test(item)) {
 			// 生成二维码
@@ -502,11 +527,11 @@ function showDetail(box, ftpResults) {
 }
 
 
-
 // 删除临时文件夹
 function delTempDir(filesArr, opts) {
 	var tempDir = [];
 	var optDir = [];
+	// console.log(filesArr)
 	filesArr.forEach(function (file) {
 		if(typeof file === 'string') {
 			tempDir.push(getDirPath(file, true, opts));
@@ -534,6 +559,8 @@ function delTempDir(filesArr, opts) {
 	})
 
 	var allDir = tempDir.concat(optDirNew);
+
+	// console.log(allDir)
 
 	async.each(allDir, function (dirPath, callback) {
 		if(fs.existsSync(dirPath)) {
@@ -608,10 +635,6 @@ function prettyBytes(num) {
 
   return (neg ? '-' : '') + num + ' ' + unit;
 };
-
-
-
-
 
 
 
