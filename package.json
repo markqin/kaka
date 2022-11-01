@@ -9,7 +9,7 @@
     "clean-css": "^4.2.1",
     "drag-drop": "^2.13.2",
     "ftp": "^0.3.10",
-    "gulp": "^3.9.0",
+    "gulp": "^4.0.2",
     "gulp-rename": "^1.2.2",
     "image-size": "^0.4.0",
     "imagemin": "^6.1.0",
